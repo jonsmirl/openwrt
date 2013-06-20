@@ -234,7 +234,6 @@ $(call KernelPackage/rt2x00/Default)
   DEPENDS+= @(PCI_SUPPORT||TARGET_ramips) +kmod-rt2x00-lib +kmod-eeprom-93cx6
   TITLE+= (PCI)
   FILES:= \
-	$(PKG_BUILD_DIR)/drivers/net/wireless/rt2x00/rt2x00pci.ko \
 	$(PKG_BUILD_DIR)/drivers/net/wireless/rt2x00/rt2x00mmio.ko
   AUTOLOAD:=$(call AutoLoad,25,rt2x00mmio rt2x00pci)
 endef
