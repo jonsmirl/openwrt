@@ -1,5 +1,5 @@
 Bottom: d31231866f0f06216c3269888aa3e7a1532006f8
-Top:    d31231866f0f06216c3269888aa3e7a1532006f8
+Top:    94c20b8660d654b7285862c34826f879126d3e8f
 Author: Jon Smirl <jonsmirl@smirl2.(none)>
 Date:   2013-06-21 10:34:37 -0400
 
@@ -8,4 +8,76 @@ Basic changes for AsiaRF module
 
 ---
 
-
+diff --git a/.gitignore b/.gitignore
+index 70a454c..eec44d1 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -8,11 +8,11 @@
+ /bin
+ /build_dir
+ /staging_dir
++/patches*
+ /tmp
+ /logs
+ /feeds
+ /feeds.conf
+-/files
+ /package/feeds
+ /package/openwrt-packages
+ *.orig
+@@ -21,4 +21,4 @@
+ .#*
+ *#
+ .emacs.desktop*
+-TAGS*~
+\ No newline at end of file
++TAGS*~
+diff --git a/files/etc/config/network b/files/etc/config/network
+new file mode 100644
+index 0000000..35d4e95
+--- /dev/null
++++ b/files/etc/config/network
+@@ -0,0 +1,43 @@
++config interface 'loopback'
++	option ifname 'lo'
++	option proto 'static'
++	option ipaddr '127.0.0.1'
++	option netmask '255.0.0.0'
++
++config globals 'globals'
++	option ula_prefix 'fdd5:b76f:792d::/48'
++
++config interface 'lan'
++	option ifname 'eth0.1'
++	option type 'bridge'
++	option proto 'static'
++	option ipaddr '192.168.2.200'
++	option netmask '255.255.255.0'
++	option ip6assign '64'
++	option gateway '192.168.2.1'
++	option dns '192.168.2.1'
++
++config interface 'wan'
++	option ifname 'eth0.2'
++	option proto 'dhcp'
++
++config interface 'wan6'
++	option ifname '@wan'
++	option proto 'dhcpv6'
++
++config switch
++	option name 'rt305x'
++	option reset '1'
++	option enable_vlan '1'
++
++config switch_vlan
++	option device 'rt305x'
++	option vlan '1'
++	option ports '0 1 2 3  6t'
++
++config switch_vlan
++	option device 'rt305x'
++	option vlan '2'
++	option ports '4  6t'
++
++
