@@ -1,5 +1,5 @@
 Bottom: 7bf454f2d96939713dca86ade59c17f90b3d398d
-Top:    7bf454f2d96939713dca86ade59c17f90b3d398d
+Top:    8a6a2531b8572c1738b44c74c6b4ebe05a0eaf53
 Author: Jon Smirl <jonsmirl@smirl2.(none)>
 Date:   2013-06-21 13:45:54 -0400
 
@@ -8,4 +8,29 @@ Fix 5350 boot
 
 ---
 
-
+diff --git a/target/linux/ramips/base-files/etc/uci-defaults/02_network b/target/linux/ramips/base-files/etc/uci-defaults/02_network
+index b45b0ca..747a83d 100755
+--- a/target/linux/ramips/base-files/etc/uci-defaults/02_network
++++ b/target/linux/ramips/base-files/etc/uci-defaults/02_network
+@@ -13,7 +13,6 @@ ramips_setup_rt3x5x_vlans()
+ 	fi
+ 	local wanports=""
+ 	local lanports=""
+-	swconfig dev rt305x set reset 1
+ 	for port in 5 4 3 2 1 0; do
+ 		if [ `swconfig dev rt305x port $port get disable` = "1" ]; then
+ 			continue
+diff --git a/target/linux/ramips/base-files/lib/preinit/07_set_preinit_iface_ramips b/target/linux/ramips/base-files/lib/preinit/07_set_preinit_iface_ramips
+index edc5a12..20447bc 100644
+--- a/target/linux/ramips/base-files/lib/preinit/07_set_preinit_iface_ramips
++++ b/target/linux/ramips/base-files/lib/preinit/07_set_preinit_iface_ramips
+@@ -18,6 +18,10 @@ ramips_set_preinit_iface() {
+ 		;;
+ 	esac
+ 
++	RT3X5X=`cat /proc/cpuinfo | egrep "(RT3.5|RT5350)"`
++	if [ -n "${RT3X5X}" ]; then
++		swconfig dev rt305x set reset 1
++	fi
+ 	ifname=eth0
+ }
