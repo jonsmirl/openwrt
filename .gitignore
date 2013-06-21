@@ -8,11 +8,11 @@
 /bin
 /build_dir
 /staging_dir
+/patches*
 /tmp
 /logs
 /feeds
 /feeds.conf
-/files
 /package/feeds
 /package/openwrt-packages
 *.orig
