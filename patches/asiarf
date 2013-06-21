@@ -1,5 +1,5 @@
-Bottom: 7bf454f2d96939713dca86ade59c17f90b3d398d
-Top:    1a847443b2b3daa878356d2d8cc6a3eb5f7d5b66
+Bottom: 8a6a2531b8572c1738b44c74c6b4ebe05a0eaf53
+Top:    b3ea573c1045677187bbd59f43813b03d866d196
 Author: Jon Smirl <jonsmirl@smirl2.(none)>
 Date:   2013-06-21 13:44:58 -0400
 
@@ -94,10 +94,10 @@ index 810dddf..aace5b5 100644
  	br6425 | \
  	broadway | \
 diff --git a/target/linux/ramips/base-files/etc/uci-defaults/02_network b/target/linux/ramips/base-files/etc/uci-defaults/02_network
-index b45b0ca..2bc19e9 100755
+index 747a83d..49cc0cd 100755
 --- a/target/linux/ramips/base-files/etc/uci-defaults/02_network
 +++ b/target/linux/ramips/base-files/etc/uci-defaults/02_network
-@@ -42,6 +42,7 @@ ramips_setup_interfaces()
+@@ -41,6 +41,7 @@ ramips_setup_interfaces()
  	all0256n | \
  	all5002 | \
  	all5003 | \
