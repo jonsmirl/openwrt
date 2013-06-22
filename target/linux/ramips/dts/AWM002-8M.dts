@@ -75,25 +75,6 @@
 		status = "okay";
 	};
 
-	i2c-gpio {
-		compatible = "i2c-gpio";
-
-		gpios = <&gpio0 1 0 &gpio0 2 0>;
-		i2c-gpio,delay-us = <10>;
-
-		pcf0: iexp@38 {
-			#gpio-cells = <2>;
-			compatible = "inxp,pcf8574a";
-			reg = <0x38>;
-			gpio-controller;
-		};
-
-		hwmon@4b {
-			compatible = "national,lm92";
-			reg = <0x4b>;
-		};
-	};
-
 	gpio-leds {
 		compatible = "gpio-leds";
 		ld1 {
