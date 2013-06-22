@@ -1,0 +1,61 @@
+Bottom: 3d4069a150ead34722c1bf4c8741b6e3d09e1245
+Top:    dd725a5b49a0f7b4285ae38a9bb7de079cb7a630
+Author: Jon Smirl <jonsmirl@smirl2.(none)>
+Date:   2013-06-22 15:49:30 -0400
+
+Refresh of asiarf
+
+---
+
+diff --git a/target/linux/ramips/dts/AWM002-8M.dts b/target/linux/ramips/dts/AWM002-8M.dts
+index 88bee8e..b112981 100644
+--- a/target/linux/ramips/dts/AWM002-8M.dts
++++ b/target/linux/ramips/dts/AWM002-8M.dts
+@@ -28,28 +28,28 @@
+ 				linux,modalias = "m25p80", "mx25l6405d";
+ 				spi-max-frequency = <10000000>;
+ 
+-		partition@0 {
+-			label = "u-boot";
+-			reg = <0x0 0x30000>;
+-			read-only;
+-		};
++				partition@0 {
++					label = "u-boot";
++					reg = <0x0 0x30000>;
++					read-only;
++				};
+ 
+-		partition@30000 {
+-			label = "u-boot-env";
+-			reg = <0x30000 0x10000>;
+-			read-only;
+-		};
++				partition@30000 {
++					label = "u-boot-env";
++					reg = <0x30000 0x10000>;
++					read-only;
++				};
+ 
+-		factory: partition@40000 {
+-			label = "factory";
+-			reg = <0x40000 0x10000>;
+-			read-only;
+-		};
++				factory: partition@40000 {
++					label = "factory";
++					reg = <0x40000 0x10000>;
++					read-only;
++				};
+ 
+-		partition@50000 {
+-			label = "firmware";
+-			reg = <0x50000 0x1fb0000>;
+-		};
++				partition@50000 {
++					label = "firmware";
++					reg = <0x50000 0x1fb0000>;
++				};
+ 			};
+ 		};
+ 	};
