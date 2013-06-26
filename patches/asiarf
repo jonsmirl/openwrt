@@ -1,5 +1,5 @@
-Bottom: 8a6a2531b8572c1738b44c74c6b4ebe05a0eaf53
-Top:    9036e33cb051a004fdaf0043cb5a2ff32ebad28a
+Bottom: e4ab7d162f9c5eede46be39fbf11dbee14c2525a
+Top:    12e50888352384de5f9ee23f448bf032ab30b794
 Author: Jon Smirl <jonsmirl@smirl2.(none)>
 Date:   2013-06-21 13:44:58 -0400
 
@@ -454,7 +454,7 @@ index 0000000..b112981
 +	};
 +};
 diff --git a/target/linux/ramips/image/Makefile b/target/linux/ramips/image/Makefile
-index f00eb6c..d9ea396 100644
+index 5f2c311..399a5e7 100644
 --- a/target/linux/ramips/image/Makefile
 +++ b/target/linux/ramips/image/Makefile
 @@ -279,6 +279,8 @@ define BuildFirmware/ASL26555/initramfs
