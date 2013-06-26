@@ -1,5 +1,5 @@
 Bottom: 8a6a2531b8572c1738b44c74c6b4ebe05a0eaf53
-Top:    dd725a5b49a0f7b4285ae38a9bb7de079cb7a630
+Top:    9036e33cb051a004fdaf0043cb5a2ff32ebad28a
 Author: Jon Smirl <jonsmirl@smirl2.(none)>
 Date:   2013-06-21 13:44:58 -0400
 
@@ -32,34 +32,156 @@ index 70a454c..eec44d1 100644
 -TAGS*~
 \ No newline at end of file
 +TAGS*~
+diff --git a/files/etc/config/batman-adv b/files/etc/config/batman-adv
+new file mode 100644
+index 0000000..361ecdf
+--- /dev/null
++++ b/files/etc/config/batman-adv
+@@ -0,0 +1,3 @@
++config mesh 'bat0'
++        option 'aggregated_ogms'
++        option 'ap_isolation' 
+diff --git a/files/etc/config/dhcp b/files/etc/config/dhcp
+new file mode 100644
+index 0000000..1db87c6
+--- /dev/null
++++ b/files/etc/config/dhcp
+@@ -0,0 +1,38 @@
++config dnsmasq
++	option domainneeded	1
++	option boguspriv	1
++	option filterwin2k	0  # enable for dial on demand
++	option localise_queries	1
++	option rebind_protection 1  # disable if upstream must serve RFC1918 addresses
++	option rebind_localhost 1  # enable for RBL checking and similar services
++	#list rebind_domain example.lan  # whitelist RFC1918 responses for domains
++	option local	'/lan/'
++	option domain	'lan'
++	option expandhosts	1
++	option nonegcache	0
++	option authoritative	1
++	option readethers	1
++	option leasefile	'/tmp/dhcp.leases'
++	option resolvfile	'/tmp/resolv.conf.auto'
++	#list server		'/mycompany.local/1.2.3.4'
++	#option nonwildcard	1
++	#list interface		br-lan
++	#list notinterface	lo
++	#list bogusnxdomain     '64.94.110.11'
++
++config dhcp lan
++	option interface	lan
++	option start 	100
++	option limit	150
++	option leasetime	12h
++
++config dhcp hostspot
++        option interface 'hotspot'
++        option start '100'
++        option limit '150'
++        option dynamicdhcp '1'
++
++config dhcp wan
++	option interface	wan
++	option ignore	1
++
 diff --git a/files/etc/config/network b/files/etc/config/network
 new file mode 100644
-index 0000000..f3bfb81
+index 0000000..a24e7c5
 --- /dev/null
 +++ b/files/etc/config/network
-@@ -0,0 +1,22 @@
+@@ -0,0 +1,49 @@
 +config interface 'loopback'
-+	option ifname 'lo'
-+	option proto 'static'
-+	option ipaddr '127.0.0.1'
-+	option netmask '255.0.0.0'
++option ifname 'lo'
++option proto 'static'
++option ipaddr '127.0.0.1'
++option netmask '255.0.0.0'
 +
 +config globals 'globals'
-+	option ula_prefix 'fd28:7772:4f77::/48'
++option ula_prefix 'fd28:7772:4f77::/48'
 +
-+config switch
-+	option name 'switch0'
-+	option reset '1'
-+	option enable_vlan '0'
++config switch 'eth0'
++option name 'switch0'
++option reset '1'
++        option vlan0 '1 2 3 4 5*'
++        option vlan1 '0 5'
++        option vlan2 '5'
 +
 +config interface 'lan'
-+	option ifname 'eth0'
-+	option type 'bridge'
-+	option proto 'static'
-+	option ipaddr '192.168.2.2'
-+	option netmask '255.255.255.0'
++        option ifname 'eth0.0'
++        option proto 'static'
++        option ipaddr '192.168.2.2'
++        option netmask '255.255.255.0'
++        option defaultroute '0'
++        option peerdns '0'
++        option type 'bridge'
 +	option ip6assign '60'
 +
++config interface 'wan'
++        option ifname 'eth0.1'
++        option defaultroute '0'
++        option peerdns '0'
++        option proto 'static'
++        option ipaddr '192.168.3.2'
++        option netmask '255.255.255.0'
++        option gateway '192.168.3.1'
++        option dns '192.168.3.1'
++
++config interface 'hotspot'
++        option ifname 'eth0.2'
++        option proto 'static'
++        option ipaddr '192.168.4.2'
++        option netmask '255.255.255.0'
++        option type 'bridge'
++        option defaultroute '0'
++
++config interface 'mesh'
++        option ifname 'adhoc0'
++        option mtu '1528'
++        option proto 'batadv'
++        option mesh 'bat0'
+diff --git a/files/etc/config/wireless b/files/etc/config/wireless
+new file mode 100644
+index 0000000..4cfe7be
+--- /dev/null
++++ b/files/etc/config/wireless
+@@ -0,0 +1,36 @@
++config wifi-device radio0
++	option type     mac80211
++	option channel  11
++	option hwmode	11ng
++	option path	'10180000.wmac'
++	option htmode	HT20
++	list ht_capab	GF
++	list ht_capab	SHORT-GI-20
++	list ht_capab	SHORT-GI-40
++	list ht_capab	RX-STBC1
++
++config wifi-iface
++        option device 'radio0'
++        option ifname 'ap0'
++        option network 'lan'
++        option mode 'ap'
++        option ssid 'Smirl secure'
++        option encryption 'psk2'
++        option key 'iebgener'
++
++config wifi-iface
++        option device 'radio0'
++        option ifname 'ap1'
++        option ssid 'Smirl open'
++        option network 'hotspot'
++        option mode 'ap'
++        option encryption 'none'
++        option isolate '1'
++
++config wifi-iface
++        option device 'radio0'
++        option ifname 'adhoc0'
++        option network 'mesh'
++        option mode 'adhoc'
++        option ssid 'mesh'
++        option bssid '02:CA:FE:CA:CA:40'
 diff --git a/target/linux/ramips/base-files/etc/hotplug.d/firmware/10-rt2x00-eeprom b/target/linux/ramips/base-files/etc/hotplug.d/firmware/10-rt2x00-eeprom
 index 810dddf..aace5b5 100644
 --- a/target/linux/ramips/base-files/etc/hotplug.d/firmware/10-rt2x00-eeprom
