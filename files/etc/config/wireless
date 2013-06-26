@@ -1,0 +1,36 @@
+config wifi-device radio0
+	option type     mac80211
+	option channel  11
+	option hwmode	11ng
+	option path	'10180000.wmac'
+	option htmode	HT20
+	list ht_capab	GF
+	list ht_capab	SHORT-GI-20
+	list ht_capab	SHORT-GI-40
+	list ht_capab	RX-STBC1
+
+config wifi-iface
+        option device 'radio0'
+        option ifname 'ap0'
+        option network 'lan'
+        option mode 'ap'
+        option ssid 'Smirl secure'
+        option encryption 'psk2'
+        option key 'iebgener'
+
+config wifi-iface
+        option device 'radio0'
+        option ifname 'ap1'
+        option ssid 'Smirl open'
+        option network 'hotspot'
+        option mode 'ap'
+        option encryption 'none'
+        option isolate '1'
+
+config wifi-iface
+        option device 'radio0'
+        option ifname 'adhoc0'
+        option network 'mesh'
+        option mode 'adhoc'
+        option ssid 'mesh'
+        option bssid '02:CA:FE:CA:CA:40'
