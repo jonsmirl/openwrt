@@ -1,5 +1,5 @@
-Bottom: 3a65223b0267ec7c5c52632dedba33635b8dd527
-Top:    e4ab7d162f9c5eede46be39fbf11dbee14c2525a
+Bottom: b9f94c2e1e64c911f03c4f405f0c0f309fca53ca
+Top:    b9f94c2e1e64c911f03c4f405f0c0f309fca53ca
 Author: Jon Smirl <jonsmirl@smirl2.(none)>
 Date:   2013-06-21 13:45:54 -0400
 
@@ -8,17 +8,4 @@ Fix 5350 boot
 
 ---
 
-diff --git a/target/linux/ramips/base-files/lib/preinit/07_set_preinit_iface_ramips b/target/linux/ramips/base-files/lib/preinit/07_set_preinit_iface_ramips
-index db03b6b..0f8da99 100644
---- a/target/linux/ramips/base-files/lib/preinit/07_set_preinit_iface_ramips
-+++ b/target/linux/ramips/base-files/lib/preinit/07_set_preinit_iface_ramips
-@@ -11,6 +11,10 @@ ramips_set_preinit_iface() {
- 		swconfig dev rt305x set reset 1
- 	fi
- 
-+	RT3X5X=`cat /proc/cpuinfo | egrep "(RT3.5|RT5350)"`
-+	if [ -n "${RT3X5X}" ]; then
-+		swconfig dev rt305x set reset 1
-+	fi
- 	ifname=eth0
- }
+
