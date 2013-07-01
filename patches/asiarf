@@ -1,7 +1,7 @@
-Bottom: f43902cab560bf881ee260316e1a2b8c8b5fd888
-Top:    d24d3cf3dbd860c2cbfec44f33ad799322147d8b
+Bottom: 229d502e024393fface4f70ec2676ce20cb680d3
+Top:    b7d8a552e9c9d039426acfd2b007f09d8034ce52
 Author: Jon Smirl <jonsmirl@smirl2.(none)>
-Date:   2013-06-29 12:34:41 -0400
+Date:   2013-06-30 20:39:29 -0400
 
 Basic changes for AsiaRF module
 
@@ -201,7 +201,7 @@ index 0000000..a328f37
 +	option disabled '1'
 +
 diff --git a/target/linux/ramips/base-files/etc/hotplug.d/firmware/10-rt2x00-eeprom b/target/linux/ramips/base-files/etc/hotplug.d/firmware/10-rt2x00-eeprom
-index 810dddf..aace5b5 100644
+index fef89ea..31e75da 100644
 --- a/target/linux/ramips/base-files/etc/hotplug.d/firmware/10-rt2x00-eeprom
 +++ b/target/linux/ramips/base-files/etc/hotplug.d/firmware/10-rt2x00-eeprom
 @@ -61,6 +61,7 @@ case "$FIRMWARE" in
