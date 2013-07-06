@@ -46,6 +46,9 @@ ramips_board_detect() {
 	*"Argus ATP-52B")
 		name="argus-atp52b"
 		;;
+	*"AsiaRF AWM002")
+		name="awm002"
+		;;
 	*"BR6524N")
 		name="br6524n"
 		;;
