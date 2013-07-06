@@ -1,0 +1,49 @@
+/dts-v1/;
+
+/include/ "AWM002-8M.dtsi"
+
+/ {
+	model = "AsiaRF AWM002 EVB";
+
+	gpio-leds {
+		compatible = "gpio-leds";
+		3g {
+			label = "awm002-evb:green:3g";
+			gpios = <&gpio0 9 1>;
+		};
+		gateway {
+			label = "awm002-evb:green:gateway";
+			gpios = <&gpio0 11 1>;
+		};
+		ap {
+			label = "awm002-evb:green:ap";
+			gpios = <&gpio0 12 1>;
+		};
+		wps {
+			label = "awm002-evb:green:wps";
+			gpios = <&gpio0 14 1>;
+		};
+		station {
+			label = "awm002-evb:green:station";
+			gpios = <&gpio0 13 1>;
+		};
+	};
+
+	gpio-keys-polled {
+		compatible = "gpio-keys-polled";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		poll-interval = <20>;
+		reset_wps {
+			label = "reset_wps";
+			gpios = <&gpio0 10 1>;
+			linux,code = <0x198>;
+		};
+		mode {
+			label = "mode";
+			gpios = <&gpio0 7 1>;
+			linux,code = <0x32>;
+		};
+	};
+
+};
