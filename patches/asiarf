@@ -1,5 +1,5 @@
 Bottom: 8c1761a9e3851daffaaea68b919ed81e3b2973e1
-Top:    cc2084ca8811d0f494a3a2eef67d06e16b1d2099
+Top:    17591f73e08babf97ed8dd45f8b91586f202332d
 Author: Jon Smirl <jonsmirl@smirl2.(none)>
 Date:   2013-07-06 18:16:41 -0400
 
@@ -514,14 +514,14 @@ index 0000000..5fe2faa
 +	};
 +};
 diff --git a/target/linux/ramips/image/Makefile b/target/linux/ramips/image/Makefile
-index 499f105..dd9a81b 100644
+index 499f105..4d7e665 100644
 --- a/target/linux/ramips/image/Makefile
 +++ b/target/linux/ramips/image/Makefile
 @@ -277,6 +277,8 @@ define BuildFirmware/ASL26555/initramfs
  endef
  Image/Build/Profile/ASL26555=$(call BuildFirmware/ASL26555/$(1),$(1),asl26555,ASL26555)
  
-+Image/Build/Profile/AWM002=$(call BuildFirmware/DefaultDualSize/$(1),$(1),awm002,AWM002)
++Image/Build/Profile/AWM002-EVB=$(call BuildFirmware/DefaultDualSize/$(1),$(1),awm002-evb,AWM002-EVB)
 +
  Image/Build/Profile/BC2=$(call BuildFirmware/Default8M/$(1),$(1),bc2,BC2)
  
@@ -530,13 +530,13 @@ index 499f105..dd9a81b 100644
  	$(call Image/Build/Profile/ALL5003,$(1))
  	$(call Image/Build/Profile/ARGUS_ATP52B,$(1))
  	$(call Image/Build/Profile/ASL26555,$(1))
-+	$(call Image/Build/Profile/AWM002,$(1))
++	$(call Image/Build/Profile/AWM002-EVB,$(1))
  	$(call Image/Build/Profile/BC2,$(1))
  	$(call Image/Build/Profile/BROADWAY,$(1))
  	$(call Image/Build/Profile/CARAMBOLA,$(1))
 diff --git a/target/linux/ramips/rt305x/profiles/asiarf.mk b/target/linux/ramips/rt305x/profiles/asiarf.mk
 new file mode 100644
-index 0000000..7afa253
+index 0000000..aa25db5
 --- /dev/null
 +++ b/target/linux/ramips/rt305x/profiles/asiarf.mk
 @@ -0,0 +1,18 @@
@@ -547,14 +547,14 @@ index 0000000..7afa253
 +# See /LICENSE for more information.
 +#
 +
-+define Profile/AWM002
-+	NAME:=AsiaRF AWM002
++define Profile/AWM002-EVB
++	NAME:=AsiaRF AWM002-EVB
 +	PACKAGES:=kmod-usb-core kmod-usb-ohci kmod-usb2 kmod-ledtrig-usbdev \
 +	kmod-i2c-core kmod-i2c-gpio
 +endef
 +
-+define Profile/AWM002/Description
-+	Package set for AsiaRF AWM002
++define Profile/AWM002-EVB/Description
++	Package set for AsiaRF AWM002 Evaluation Board
 +endef
 +
-+$(eval $(call Profile,AWM002))
++$(eval $(call Profile,AWM002-EVB))
