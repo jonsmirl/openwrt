@@ -1,5 +1,5 @@
 Bottom: 8c1761a9e3851daffaaea68b919ed81e3b2973e1
-Top:    f07fc364bd622c6c2c759e433844f08d5161f151
+Top:    c7639079ded369e5125f369df52d3ce5826f9ef1
 Author: Jon Smirl <jonsmirl@smirl2.(none)>
 Date:   2013-07-06 18:16:41 -0400
 
@@ -213,14 +213,14 @@ index fef89ea..9293a29 100644
  	br6425 | \
  	broadway | \
 diff --git a/target/linux/ramips/base-files/etc/uci-defaults/02_network b/target/linux/ramips/base-files/etc/uci-defaults/02_network
-index 747a83d..49cc0cd 100755
+index 747a83d..4ac0904 100755
 --- a/target/linux/ramips/base-files/etc/uci-defaults/02_network
 +++ b/target/linux/ramips/base-files/etc/uci-defaults/02_network
 @@ -41,6 +41,7 @@ ramips_setup_interfaces()
  	all0256n | \
  	all5002 | \
  	all5003 | \
-+	awm002 | \
++	awm002-evb | \
  	broadway | \
  	wnce2001)
  		ucidef_add_switch "switch0" "1" "0"
