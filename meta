@@ -1,9 +1,8 @@
 Version: 1
-Previous: 1d4bca1b1ac5db08afb1ece0e0eedcbdfaaf4d6d
-Head: 2a6c3bc606c7aa463ddfe600c1aa5355370e9a90
+Previous: 3414681c78fbeb1dde501ce4e2dbdcf5ccd2bc9c
+Head: 350ff5d92e7f9593825af9ab40b605d91f7e01cf
 Applied:
   fix5350: c8da8a1d49ee477e047c46e827ccd967635b95f6
-  asiarf: 7c824576a096bcd7490e76882ce96e7e69522d89
-  refresh-temp: 2a6c3bc606c7aa463ddfe600c1aa5355370e9a90
+  asiarf: 350ff5d92e7f9593825af9ab40b605d91f7e01cf
 Unapplied:
 Hidden:
