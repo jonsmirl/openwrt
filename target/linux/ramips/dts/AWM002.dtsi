@@ -23,33 +23,31 @@
 			m25p80@0 {
 				#address-cells = <1>;
 				#size-cells = <1>;
-				compatible = "mx25l6405d";
 				reg = <0 0>;
-				linux,modalias = "m25p80", "mx25l6405d";
 				spi-max-frequency = <10000000>;
 
-		partition@0 {
-			label = "u-boot";
-			reg = <0x0 0x30000>;
-			read-only;
-		};
+				partition@0 {
+					label = "u-boot";
+					reg = <0x0 0x30000>;
+					read-only;
+				};
 
-		partition@30000 {
-			label = "u-boot-env";
-			reg = <0x30000 0x10000>;
-			read-only;
-		};
+				partition@30000 {
+					label = "u-boot-env";
+					reg = <0x30000 0x10000>;
+					read-only;
+				};
 
-		factory: partition@40000 {
-			label = "factory";
-			reg = <0x40000 0x10000>;
-			read-only;
-		};
+				factory: partition@40000 {
+					label = "factory";
+					reg = <0x40000 0x10000>;
+					read-only;
+				};
 
-		partition@50000 {
-			label = "firmware";
-			reg = <0x50000 0x1fb0000>;
-		};
+				partition@50000 {
+					label = "firmware";
+					reg = <0x50000 0x1fb0000>;
+				};
 			};
 		};
 	};
@@ -75,34 +73,15 @@
 		status = "okay";
 	};
 
-	i2c-gpio {
-		compatible = "i2c-gpio";
-
-		gpios = <&gpio0 1 0 &gpio0 2 0>;
-		i2c-gpio,delay-us = <10>;
-
-		pcf0: iexp@38 {
-			#gpio-cells = <2>;
-			compatible = "inxp,pcf8574a";
-			reg = <0x38>;
-			gpio-controller;
-		};
-
-		hwmon@4b {
-			compatible = "national,lm92";
-			reg = <0x4b>;
-		};
-	};
-
 	gpio-leds {
 		compatible = "gpio-leds";
 		ld1 {
 			label = "asiarf:green:ld1";
-			gpios = <&pcf0 0 1>;
+			gpios = <&gpio0 0 1>;
 		};
 		ld2 {
 			label = "asiarf:green:ld2";
-			gpios = <&pcf0 1 1>;
+			gpios = <&gpio0 1 1>;
 		};
 	};
 };
