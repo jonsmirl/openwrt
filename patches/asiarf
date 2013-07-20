@@ -1,5 +1,5 @@
 Bottom: 8c1761a9e3851daffaaea68b919ed81e3b2973e1
-Top:    c7639079ded369e5125f369df52d3ce5826f9ef1
+Top:    a7399aec4a4511cd663c70f6797c9e54268bc11d
 Author: Jon Smirl <jonsmirl@smirl2.(none)>
 Date:   2013-07-06 18:16:41 -0400
 
@@ -225,14 +225,14 @@ index 747a83d..4ac0904 100755
  	wnce2001)
  		ucidef_add_switch "switch0" "1" "0"
 diff --git a/target/linux/ramips/base-files/lib/preinit/06_set_iface_mac b/target/linux/ramips/base-files/lib/preinit/06_set_iface_mac
-index bd1dac0..a612b75 100644
+index bd1dac0..6f153aa 100644
 --- a/target/linux/ramips/base-files/lib/preinit/06_set_iface_mac
 +++ b/target/linux/ramips/base-files/lib/preinit/06_set_iface_mac
 @@ -55,6 +55,7 @@ preinit_set_mac_address() {
  	all0256n |\
  	all5002 |\
  	all5003 |\
-+	awm002 |\
++	awm002-evb |\
  	carambola |\
  	dir-615-h1 |\
  	fonera20n |\
@@ -251,14 +251,14 @@ index c5f216f..1f81b24 100755
  		name="br6524n"
  		;;
 diff --git a/target/linux/ramips/base-files/lib/upgrade/platform.sh b/target/linux/ramips/base-files/lib/upgrade/platform.sh
-index eaa7e64..a15d906 100755
+index eaa7e64..6d63f6b 100755
 --- a/target/linux/ramips/base-files/lib/upgrade/platform.sh
 +++ b/target/linux/ramips/base-files/lib/upgrade/platform.sh
 @@ -24,6 +24,7 @@ platform_check_image() {
  	all5002 | \
  	all5003 | \
  	asl26555 | \
-+	awm002 | \
++	awm002-evb | \
  	bc2 | \
  	broadway | \
  	carambola | \
