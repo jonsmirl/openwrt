@@ -1,0 +1,35 @@
+Bottom: c7639079ded369e5125f369df52d3ce5826f9ef1
+Top:    a7399aec4a4511cd663c70f6797c9e54268bc11d
+Author: Jon Smirl <jonsmirl@gmail.com>
+Date:   2013-07-20 10:26:12 -0400
+
+Refresh of asiarf
+
+---
+
+diff --git a/target/linux/ramips/base-files/lib/preinit/06_set_iface_mac b/target/linux/ramips/base-files/lib/preinit/06_set_iface_mac
+index a612b75..6f153aa 100644
+--- a/target/linux/ramips/base-files/lib/preinit/06_set_iface_mac
++++ b/target/linux/ramips/base-files/lib/preinit/06_set_iface_mac
+@@ -55,7 +55,7 @@ preinit_set_mac_address() {
+ 	all0256n |\
+ 	all5002 |\
+ 	all5003 |\
+-	awm002 |\
++	awm002-evb |\
+ 	carambola |\
+ 	dir-615-h1 |\
+ 	fonera20n |\
+diff --git a/target/linux/ramips/base-files/lib/upgrade/platform.sh b/target/linux/ramips/base-files/lib/upgrade/platform.sh
+index a15d906..6d63f6b 100755
+--- a/target/linux/ramips/base-files/lib/upgrade/platform.sh
++++ b/target/linux/ramips/base-files/lib/upgrade/platform.sh
+@@ -24,7 +24,7 @@ platform_check_image() {
+ 	all5002 | \
+ 	all5003 | \
+ 	asl26555 | \
+-	awm002 | \
++	awm002-evb | \
+ 	bc2 | \
+ 	broadway | \
+ 	carambola | \
