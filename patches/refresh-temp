@@ -1,0 +1,22 @@
+Bottom: f07fc364bd622c6c2c759e433844f08d5161f151
+Top:    c7639079ded369e5125f369df52d3ce5826f9ef1
+Author: Jon Smirl <jonsmirl@gmail.com>
+Date:   2013-07-20 10:23:29 -0400
+
+Refresh of asiarf
+
+---
+
+diff --git a/target/linux/ramips/base-files/etc/uci-defaults/02_network b/target/linux/ramips/base-files/etc/uci-defaults/02_network
+index 49cc0cd..4ac0904 100755
+--- a/target/linux/ramips/base-files/etc/uci-defaults/02_network
++++ b/target/linux/ramips/base-files/etc/uci-defaults/02_network
+@@ -41,7 +41,7 @@ ramips_setup_interfaces()
+ 	all0256n | \
+ 	all5002 | \
+ 	all5003 | \
+-	awm002 | \
++	awm002-evb | \
+ 	broadway | \
+ 	wnce2001)
+ 		ucidef_add_switch "switch0" "1" "0"
