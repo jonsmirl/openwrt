@@ -5,14 +5,14 @@
 # See /LICENSE for more information.
 #
 
-define Profile/AWM002
-	NAME:=AsiaRF AWM002
+define Profile/AWM002-EVB
+	NAME:=AsiaRF AWM002-EVB
 	PACKAGES:=kmod-usb-core kmod-usb-ohci kmod-usb2 kmod-ledtrig-usbdev \
 	kmod-i2c-core kmod-i2c-gpio
 endef
 
-define Profile/AWM002/Description
-	Package set for AsiaRF AWM002
+define Profile/AWM002-EVB/Description
+	Package set for AsiaRF AWM002 Evaluation Board
 endef
 
-$(eval $(call Profile,AWM002))
+$(eval $(call Profile,AWM002-EVB))
