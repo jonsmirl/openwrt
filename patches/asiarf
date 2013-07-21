@@ -1,5 +1,5 @@
 Bottom: 8c1761a9e3851daffaaea68b919ed81e3b2973e1
-Top:    a7399aec4a4511cd663c70f6797c9e54268bc11d
+Top:    3153d94fe20905a7289c46d33a117d81f96f586a
 Author: Jon Smirl <jonsmirl@smirl2.(none)>
 Date:   2013-07-06 18:16:41 -0400
 
@@ -312,10 +312,10 @@ index 0000000..d4cc7de
 +};
 diff --git a/target/linux/ramips/dts/AWM002-EVB-4M.dts b/target/linux/ramips/dts/AWM002-EVB-4M.dts
 new file mode 100644
-index 0000000..12f519d
+index 0000000..61b2d76
 --- /dev/null
 +++ b/target/linux/ramips/dts/AWM002-EVB-4M.dts
-@@ -0,0 +1,49 @@
+@@ -0,0 +1,40 @@
 +/dts-v1/;
 +
 +/include/ "AWM002-4M.dtsi"
@@ -325,25 +325,17 @@ index 0000000..12f519d
 +
 +	gpio-leds {
 +		compatible = "gpio-leds";
-+		3g {
-+			label = "awm002-evb:green:3g";
-+			gpios = <&gpio0 9 1>;
++		tx {
++			label = "awm002-evb:green:tx";
++			gpios = <&gpio0 15 1>;
 +		};
-+		gateway {
-+			label = "awm002-evb:green:gateway";
-+			gpios = <&gpio0 11 1>;
-+		};
-+		ap {
-+			label = "awm002-evb:green:ap";
-+			gpios = <&gpio0 12 1>;
++		rx {
++			label = "awm002-evb:green:rx";
++			gpios = <&gpio0 16 1>;
 +		};
 +		wps {
 +			label = "awm002-evb:green:wps";
-+			gpios = <&gpio0 14 1>;
-+		};
-+		station {
-+			label = "awm002-evb:green:station";
-+			gpios = <&gpio0 13 1>;
++			gpios = <&gpio0 21 1>;
 +		};
 +	};
 +
@@ -354,23 +346,22 @@ index 0000000..12f519d
 +		poll-interval = <20>;
 +		reset_wps {
 +			label = "reset_wps";
-+			gpios = <&gpio0 10 1>;
++			gpios = <&gpio0 0 1>;
 +			linux,code = <0x198>;
 +		};
 +		mode {
 +			label = "mode";
-+			gpios = <&gpio0 7 1>;
++			gpios = <&gpio0 21 1>;
 +			linux,code = <0x32>;
 +		};
 +	};
-+
 +};
 diff --git a/target/linux/ramips/dts/AWM002-EVB-8M.dts b/target/linux/ramips/dts/AWM002-EVB-8M.dts
 new file mode 100644
-index 0000000..0691f9f
+index 0000000..dd1ce4c
 --- /dev/null
 +++ b/target/linux/ramips/dts/AWM002-EVB-8M.dts
-@@ -0,0 +1,49 @@
+@@ -0,0 +1,40 @@
 +/dts-v1/;
 +
 +/include/ "AWM002-8M.dtsi"
@@ -380,25 +371,17 @@ index 0000000..0691f9f
 +
 +	gpio-leds {
 +		compatible = "gpio-leds";
-+		3g {
-+			label = "awm002-evb:green:3g";
-+			gpios = <&gpio0 9 1>;
++		tx {
++			label = "awm002-evb:green:tx";
++			gpios = <&gpio0 15 1>;
 +		};
-+		gateway {
-+			label = "awm002-evb:green:gateway";
-+			gpios = <&gpio0 11 1>;
-+		};
-+		ap {
-+			label = "awm002-evb:green:ap";
-+			gpios = <&gpio0 12 1>;
++		rx {
++			label = "awm002-evb:green:rx";
++			gpios = <&gpio0 16 1>;
 +		};
 +		wps {
 +			label = "awm002-evb:green:wps";
-+			gpios = <&gpio0 14 1>;
-+		};
-+		station {
-+			label = "awm002-evb:green:station";
-+			gpios = <&gpio0 13 1>;
++			gpios = <&gpio0 21 1>;
 +		};
 +	};
 +
@@ -409,16 +392,15 @@ index 0000000..0691f9f
 +		poll-interval = <20>;
 +		reset_wps {
 +			label = "reset_wps";
-+			gpios = <&gpio0 10 1>;
++			gpios = <&gpio0 0 1>;
 +			linux,code = <0x198>;
 +		};
 +		mode {
 +			label = "mode";
-+			gpios = <&gpio0 7 1>;
++			gpios = <&gpio0 21 1>;
 +			linux,code = <0x32>;
 +		};
 +	};
-+
 +};
 diff --git a/target/linux/ramips/dts/AWM002.dtsi b/target/linux/ramips/dts/AWM002.dtsi
 new file mode 100644
