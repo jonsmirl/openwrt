@@ -1,8 +1,7 @@
 Version: 1
-Previous: 84050660298d3f8a438690e0f5857b3f31787d3d
-Head: 489851ba3cda83f6864b2f595f156a7488d68dbe
+Previous: 4c5a7f5e15fbfcfc99a140e56fc47b70cc18baf2
+Head: f92120d3fbc55d4e944758014c8e0b4868bf139d
 Applied:
-  broke_switch: 67fa5380a4612304b9800cf6e6059f0de80966b8
-  refresh-temp: 489851ba3cda83f6864b2f595f156a7488d68dbe
+  broke_switch: f92120d3fbc55d4e944758014c8e0b4868bf139d
 Unapplied:
 Hidden:
