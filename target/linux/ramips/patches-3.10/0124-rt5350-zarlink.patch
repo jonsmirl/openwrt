@@ -1,0 +1,2124 @@
+--- a/sound/soc/ralink/Kconfig
++++ b/sound/soc/ralink/Kconfig
+@@ -13,3 +13,19 @@ config SND_MT7620_SOC_WM8960
+ 	help
+ 	  Say Y if you want to add support for ASoC audio on the Qi LB60 board
+ 	  a.k.a Qi Ben NanoNote.
++
++config SND_RT5350_SOC_PCM
++	depends on SOC_RT5350 && SND_SOC
++	select SND_SOC_GENERIC_DMAENGINE_PCM
++	tristate "SoC Audio (PCM protocol) for Ralink RT5350 SoC"
++	help
++	  Say Y if you want to use I2S protocol and PCM codec on Ralink RT5350
++	  based boards.
++
++config SND_RT5350_SOC_LE89156
++	tristate "SoC Audio support for Ralink with Zarlink SLIC"
++	select SND_RT5350_SOC_PCM
++	select SND_SOC_LE89156
++	help
++	  Say Y if you want to add support for ASoC audio on the Ralink with PCM
++	  based Zarlink LE89156 SLIC.
+--- a/sound/soc/ralink/Makefile
++++ b/sound/soc/ralink/Makefile
+@@ -9,3 +9,15 @@ obj-$(CONFIG_SND_MT7620_SOC_I2S) += snd-
+ snd-soc-mt7620-wm8960-objs := mt7620-wm8960.o
+ 
+ obj-$(CONFIG_SND_MT7620_SOC_WM8960) += snd-soc-mt7620-wm8960.o
++
++#
++# RT5350 Platform Support
++#
++snd-soc-rt5350-pcm-objs := rt5350-pcm.o
++
++obj-$(CONFIG_SND_RT5350_SOC_PCM) += snd-soc-rt5359-pcm.o
++
++# RT5350 Machine Support
++snd-soc-rt5350-le89156-objs := rt5350-le89156.o
++
++obj-$(CONFIG_SND_RT5350_SOC_LE89156) += snd-soc-rt5359-le89156.o
+--- a/sound/soc/ralink/rt5350-le89156.c
++++ b/sound/soc/ralink/rt5350-le89156.c
+@@ -22,20 +22,20 @@
+ #include <sound/soc.h>
+ 
+ 
+-static const struct snd_soc_dapm_widget mt7620_wm8960_widgets[] = {
++static const struct snd_soc_dapm_widget rt5350_le89156_widgets[] = {
+ 	SND_SOC_DAPM_SPK("Speaker", NULL),
+ };
+ 
+-static const struct snd_soc_dapm_route mt7620_wm8960_routes[] = {
++static const struct snd_soc_dapm_route rt5350_le89156_routes[] = {
+ 	{"Speaker", NULL, "HP_L"},
+ 	{"Speaker", NULL, "HP_R"},
+ };
+ 
+-#define MT7620_DAIFMT (SND_SOC_DAIFMT_I2S | \
++#define RT5350_DAIFMT (SND_SOC_DAIFMT_I2S | \
+ 			SND_SOC_DAIFMT_NB_NF | \
+ 			SND_SOC_DAIFMT_CBM_CFM)
+ 
+-static int mt7620_wm8960_codec_init(struct snd_soc_pcm_runtime *rtd)
++static int rt5350_le89156_codec_init(struct snd_soc_pcm_runtime *rtd)
+ {
+ 	struct snd_soc_codec *codec = rtd->codec;
+ 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
+@@ -45,7 +45,7 @@ static int mt7620_wm8960_codec_init(stru
+ 	snd_soc_dapm_enable_pin(dapm, "HP_L");
+ 	snd_soc_dapm_enable_pin(dapm, "HP_R");
+ 
+-	ret = snd_soc_dai_set_fmt(cpu_dai, MT7620_DAIFMT);
++	ret = snd_soc_dai_set_fmt(cpu_dai, RT5350_DAIFMT);
+ 	if (ret < 0) {
+ 		dev_err(codec->dev, "Failed to set cpu dai format: %d\n", ret);
+ 		return ret;
+@@ -54,36 +54,36 @@ static int mt7620_wm8960_codec_init(stru
+ 	return 0;
+ }
+ 
+-static struct snd_soc_dai_link mt7620_wm8960_dai = {
+-	.name = "mt7620",
+-	.stream_name = "mt7620",
+-	.init = mt7620_wm8960_codec_init,
+-	.codec_dai_name = "wm8960-hifi",
++static struct snd_soc_dai_link rt5350_le89156_dai = {
++	.name = "rt5350",
++	.stream_name = "rt5350",
++	.init = rt5350_le89156_codec_init,
++	.codec_dai_name = "le89156-hifi",
+ };
+ 
+-static struct snd_soc_card mt7620_wm8960 = {
+-	.name = "mt7620-wm8960",
++static struct snd_soc_card rt5350_le89156 = {
++	.name = "rt5350-le89156",
+ 	.owner = THIS_MODULE,
+-	.dai_link = &mt7620_wm8960_dai,
++	.dai_link = &rt5350_le89156_dai,
+ 	.num_links = 1,
+ 
+-	.dapm_widgets = mt7620_wm8960_widgets,
+-	.num_dapm_widgets = ARRAY_SIZE(mt7620_wm8960_widgets),
+-	.dapm_routes = mt7620_wm8960_routes,
+-	.num_dapm_routes = ARRAY_SIZE(mt7620_wm8960_routes),
++	.dapm_widgets = rt5350_le89156_widgets,
++	.num_dapm_widgets = ARRAY_SIZE(rt5350_le89156_widgets),
++	.dapm_routes = rt5350_le89156_routes,
++	.num_dapm_routes = ARRAY_SIZE(rt5350_le89156_routes),
+ };
+ 
+-static int mt7620_wm8960_probe(struct platform_device *pdev)
++static int rt5350_le89156_probe(struct platform_device *pdev)
+ {
+ 	struct device_node *np = pdev->dev.of_node;
+-	struct snd_soc_card *card = &mt7620_wm8960;
++	struct snd_soc_card *card = &rt5350_le89156;
+ 	int ret;
+ 
+ 	card->dev = &pdev->dev;
+ 
+-	mt7620_wm8960_dai.cpu_of_node = of_parse_phandle(np, "cpu-dai", 0);
+-	mt7620_wm8960_dai.codec_of_node = of_parse_phandle(np, "codec-dai", 0);
+-	mt7620_wm8960_dai.platform_of_node = mt7620_wm8960_dai.cpu_of_node;
++	rt5350_le89156_dai.cpu_of_node = of_parse_phandle(np, "cpu-dai", 0);
++	rt5350_le89156_dai.codec_of_node = of_parse_phandle(np, "codec-dai", 0);
++	rt5350_le89156_dai.platform_of_node = rt5350_le89156_dai.cpu_of_node;
+ 
+ 	ret = snd_soc_register_card(card);
+ 	if (ret) {
+@@ -93,7 +93,7 @@ static int mt7620_wm8960_probe(struct pl
+ 	return ret;
+ }
+ 
+-static int mt7620_wm8960_remove(struct platform_device *pdev)
++static int rt5350_le89156_remove(struct platform_device *pdev)
+ {
+ 	struct snd_soc_card *card = platform_get_drvdata(pdev);
+ 
+@@ -101,25 +101,25 @@ static int mt7620_wm8960_remove(struct p
+ 	return 0;
+ }
+ 
+-static const struct of_device_id mt7620_audio_match[] = {
+-	{ .compatible = "ralink,wm8960-audio" },
++static const struct of_device_id rt5350_audio_match[] = {
++	{ .compatible = "ralink,le89156-audio" },
+ 	{},
+ };
+-MODULE_DEVICE_TABLE(of, mt7620_audio_match);
++MODULE_DEVICE_TABLE(of, rt5350_audio_match);
+ 
+-static struct platform_driver mt7620_wm8960_driver = {
++static struct platform_driver rt5350_le89156_driver = {
+ 	.driver		= {
+-		.name	= "wm8960-audio",
++		.name	= "le89156-audio",
+ 		.owner	= THIS_MODULE,
+-		.of_match_table = mt7620_audio_match,
++		.of_match_table = rt5350_audio_match,
+ 	},
+-	.probe		= mt7620_wm8960_probe,
+-	.remove		= mt7620_wm8960_remove,
++	.probe		= rt5350_le89156_probe,
++	.remove		= rt5350_le89156_remove,
+ };
+ 
+-module_platform_driver(mt7620_wm8960_driver);
++module_platform_driver(rt5350_le89156_driver);
+ 
+ MODULE_AUTHOR("Lars-Peter Clausen <lars@metafoo.de>");
+-MODULE_DESCRIPTION("ALSA SoC QI LB60 Audio support");
++MODULE_DESCRIPTION("ALSA SoC RT5350 Zarlink LE89156 support");
+ MODULE_LICENSE("GPL v2");
+-MODULE_ALIAS("platform:qi-lb60-audio");
++MODULE_ALIAS("platform:rt5350-le89156-audio");
+--- a/sound/soc/ralink/rt5350-pcm.c
++++ b/sound/soc/ralink/rt5350-pcm.c
+@@ -32,30 +32,30 @@
+ 
+ #include <ralink_regs.h>
+ 
+-#define I2S_REG_CFG0		0x00
+-#define I2S_REG_CFG0_EN		BIT(31)
+-#define I2S_REG_CFG0_DMA_EN	BIT(30)
+-#define I2S_REG_CFG0_BYTE_SWAP	BIT(28)
+-#define I2S_REG_CFG0_TX_EN	BIT(24)
+-#define I2S_REG_CFG0_RX_EN	BIT(20)
+-#define I2S_REG_CFG0_SLAVE	BIT(16)
+-#define I2S_REG_CFG0_RX_THRES	12
+-#define I2S_REG_CFG0_TX_THRES	4
+-#define I2S_REG_CFG0_DFT_THRES	(4 << I2S_REG_CFG0_RX_THRES) | \
+-					(4 << I2S_REG_CFG0_TX_THRES)
+-
+-#define I2S_REG_INT_STATUS	0x04
+-#define I2S_REG_INT_EN		0x08
+-#define I2S_REG_FF_STATUS	0x0c
+-#define I2S_REG_WREG		0x10
+-#define I2S_REG_RREG		0x14
+-#define I2S_REG_CFG1		0x18
+-
+-#define I2S_REG_DIVCMP		0x20
+-#define I2S_REG_DIVINT		0x24
+-#define I2S_REG_CLK_EN		BIT(31)
++#define PCM_REG_CFG0		0x00
++#define PCM_REG_CFG0_EN		BIT(31)
++#define PCM_REG_CFG0_DMA_EN	BIT(30)
++#define PCM_REG_CFG0_BYTE_SWAP	BIT(28)
++#define PCM_REG_CFG0_TX_EN	BIT(24)
++#define PCM_REG_CFG0_RX_EN	BIT(20)
++#define PCM_REG_CFG0_SLAVE	BIT(16)
++#define PCM_REG_CFG0_RX_THRES	12
++#define PCM_REG_CFG0_TX_THRES	4
++#define PCM_REG_CFG0_DFT_THRES	(4 << PCM_REG_CFG0_RX_THRES) | \
++					(4 << PCM_REG_CFG0_TX_THRES)
++
++#define PCM_REG_INT_STATUS	0x04
++#define PCM_REG_INT_EN		0x08
++#define PCM_REG_FF_STATUS	0x0c
++#define PCM_REG_WREG		0x10
++#define PCM_REG_RREG		0x14
++#define PCM_REG_CFG1		0x18
++
++#define PCM_REG_DIVCMP		0x20
++#define PCM_REG_DIVINT		0x24
++#define PCM_REG_CLK_EN		BIT(31)
+ 
+-struct mt7620_i2s {
++struct rt5350_pcm {
+ 	struct resource *mem;
+ 	void __iomem *base;
+ 	dma_addr_t phys_base;
+@@ -64,63 +64,63 @@ struct mt7620_i2s {
+ 	struct snd_dmaengine_dai_dma_data capture_dma_data;
+ };
+ 
+-static inline uint32_t mt7620_i2s_read(const struct mt7620_i2s *i2s,
++static inline uint32_t rt5350_pcm_read(const struct rt5350_pcm *pcm,
+ 	unsigned int reg)
+ {
+-	return readl(i2s->base + reg);
++	return readl(pcm->base + reg);
+ }
+ 
+-static inline void mt7620_i2s_write(const struct mt7620_i2s *i2s,
++static inline void rt5350_pcm_write(const struct rt5350_pcm *pcm,
+ 	unsigned int reg, uint32_t value)
+ {
+-	//printk("i2s --> %p = 0x%08X\n", i2s->base + reg, value);
+-	writel(value, i2s->base + reg);
++	//printk("pcm --> %p = 0x%08X\n", pcm->base + reg, value);
++	writel(value, pcm->base + reg);
+ }
+ 
+-static int mt7620_i2s_startup(struct snd_pcm_substream *substream,
++static int rt5350_pcm_startup(struct snd_pcm_substream *substream,
+ 	struct snd_soc_dai *dai)
+ {
+-	struct mt7620_i2s *i2s = snd_soc_dai_get_drvdata(dai);
++	struct rt5350_pcm *pcm = snd_soc_dai_get_drvdata(dai);
+ 	uint32_t cfg;
+ 
+ 	if (dai->active)
+ 		return 0;
+ 
+-	cfg = mt7620_i2s_read(i2s, I2S_REG_CFG0);
+-	cfg |= I2S_REG_CFG0_EN;
+-	mt7620_i2s_write(i2s, I2S_REG_CFG0, cfg);
++	cfg = rt5350_pcm_read(pcm, PCM_REG_CFG0);
++	cfg |= PCM_REG_CFG0_EN;
++	rt5350_pcm_write(pcm, PCM_REG_CFG0, cfg);
+ 
+ 	return 0;
+ }
+ 
+-static void mt7620_i2s_shutdown(struct snd_pcm_substream *substream,
++static void rt5350_pcm_shutdown(struct snd_pcm_substream *substream,
+ 	struct snd_soc_dai *dai)
+ {
+-	struct mt7620_i2s *i2s = snd_soc_dai_get_drvdata(dai);
++	struct rt5350_pcm *pcm = snd_soc_dai_get_drvdata(dai);
+ 	uint32_t cfg;
+ 
+ 	if (dai->active)
+ 		return;
+ 
+-	cfg = mt7620_i2s_read(i2s, I2S_REG_CFG0);
+-	cfg &= ~I2S_REG_CFG0_EN;
+-	mt7620_i2s_write(i2s, I2S_REG_CFG0, cfg);
++	cfg = rt5350_pcm_read(pcm, PCM_REG_CFG0);
++	cfg &= ~PCM_REG_CFG0_EN;
++	rt5350_pcm_write(pcm, PCM_REG_CFG0, cfg);
+ }
+ 
+-static int mt7620_i2s_trigger(struct snd_pcm_substream *substream, int cmd,
++static int rt5350_pcm_trigger(struct snd_pcm_substream *substream, int cmd,
+ 	struct snd_soc_dai *dai)
+ {
+-	struct mt7620_i2s *i2s = snd_soc_dai_get_drvdata(dai);
++	struct rt5350_pcm *pcm = snd_soc_dai_get_drvdata(dai);
+ 
+ 	uint32_t cfg;
+ 	uint32_t mask;
+ 
+ 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+-		mask = I2S_REG_CFG0_TX_EN;
++		mask = PCM_REG_CFG0_TX_EN;
+ 	else
+-		mask = I2S_REG_CFG0_RX_EN;
++		mask = PCM_REG_CFG0_RX_EN;
+ 
+-	cfg = mt7620_i2s_read(i2s, I2S_REG_CFG0);
++	cfg = rt5350_pcm_read(pcm, PCM_REG_CFG0);
+ 
+ 	switch (cmd) {
+ 	case SNDRV_PCM_TRIGGER_START:
+@@ -137,29 +137,29 @@ static int mt7620_i2s_trigger(struct snd
+ 		return -EINVAL;
+ 	}
+ 
+-	if (cfg & (I2S_REG_CFG0_TX_EN | I2S_REG_CFG0_RX_EN))
+-		cfg |= I2S_REG_CFG0_DMA_EN;
++	if (cfg & (PCM_REG_CFG0_TX_EN | PCM_REG_CFG0_RX_EN))
++		cfg |= PCM_REG_CFG0_DMA_EN;
+ 	else
+-		cfg &= ~I2S_REG_CFG0_DMA_EN;
++		cfg &= ~PCM_REG_CFG0_DMA_EN;
+ 
+-	mt7620_i2s_write(i2s, I2S_REG_CFG0, cfg);
++	rt5350_pcm_write(pcm, PCM_REG_CFG0, cfg);
+ 
+ 	return 0;
+ }
+ 
+-static int mt7620_i2s_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
++static int rt5350_pcm_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
+ {
+-	struct mt7620_i2s *i2s = snd_soc_dai_get_drvdata(dai);
++	struct rt5350_pcm *pcm = snd_soc_dai_get_drvdata(dai);
+ 	uint32_t cfg;
+ 
+-	cfg = mt7620_i2s_read(i2s, I2S_REG_CFG0);
++	cfg = rt5350_pcm_read(pcm, PCM_REG_CFG0);
+ 
+ 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
+ 	case SND_SOC_DAIFMT_CBS_CFS:
+-		cfg |= I2S_REG_CFG0_SLAVE;
++		cfg |= PCM_REG_CFG0_SLAVE;
+ 		break;
+ 	case SND_SOC_DAIFMT_CBM_CFM:
+-		cfg &= ~I2S_REG_CFG0_SLAVE;
++		cfg &= ~PCM_REG_CFG0_SLAVE;
+ 		break;
+ 	case SND_SOC_DAIFMT_CBM_CFS:
+ 	default:
+@@ -167,12 +167,12 @@ static int mt7620_i2s_set_fmt(struct snd
+ 	}
+ 
+ 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
+-	case SND_SOC_DAIFMT_I2S:
++	case SND_SOC_DAIFMT_PCM:
+ 	case SND_SOC_DAIFMT_MSB:
+-		cfg &= ~I2S_REG_CFG0_BYTE_SWAP;
++		cfg &= ~PCM_REG_CFG0_BYTE_SWAP;
+ 		break;
+ 	case SND_SOC_DAIFMT_LSB:
+-		cfg |= I2S_REG_CFG0_BYTE_SWAP;
++		cfg |= PCM_REG_CFG0_BYTE_SWAP;
+ 		break;
+ 	default:
+ 		return -EINVAL;
+@@ -185,48 +185,48 @@ static int mt7620_i2s_set_fmt(struct snd
+ 		return -EINVAL;
+ 	}
+ 
+-	mt7620_i2s_write(i2s, I2S_REG_CFG0, cfg);
++	rt5350_pcm_write(pcm, PCM_REG_CFG0, cfg);
+ 
+ 	return 0;
+ }
+ 
+-static int mt7620_i2s_hw_params(struct snd_pcm_substream *substream,
++static int rt5350_pcm_hw_params(struct snd_pcm_substream *substream,
+ 	struct snd_pcm_hw_params *params, struct snd_soc_dai *dai)
+ {
+ 
+ 	return 0;
+ }
+ 
+-unsigned long i2sMaster_inclk_int[11] = {
++unsigned long pcmMaster_inclk_int[11] = {
+ 	78,     56,     52,     39,     28,     26,     19,     14,     13,     9,      6};
+-unsigned long i2sMaster_inclk_comp[11] = {
++unsigned long pcmMaster_inclk_comp[11] = {
+ 	64,     352,    42,     32,     176,    21,     272,    88,     10,     455,    261};
+ 
+ 
+-static int mt7620_i2s_set_sysclk(struct snd_soc_dai *dai, int clk_id,
++static int rt5350_pcm_set_sysclk(struct snd_soc_dai *dai, int clk_id,
+ 	unsigned int freq, int dir)
+ {
+-        struct mt7620_i2s *i2s = snd_soc_dai_get_drvdata(dai);
++        struct rt5350_pcm *pcm = snd_soc_dai_get_drvdata(dai);
+ 
+ 	printk("Internal REFCLK with fractional division\n");
+ 
+-	mt7620_i2s_write(i2s, I2S_REG_DIVINT, i2sMaster_inclk_int[7]);
+-	mt7620_i2s_write(i2s, I2S_REG_DIVCMP,
+-		i2sMaster_inclk_comp[7] | I2S_REG_CLK_EN);
++	rt5350_pcm_write(pcm, PCM_REG_DIVINT, pcmMaster_inclk_int[7]);
++	rt5350_pcm_write(pcm, PCM_REG_DIVCMP,
++		pcmMaster_inclk_comp[7] | PCM_REG_CLK_EN);
+ 
+-/*	struct mt7620_i2s *i2s = snd_soc_dai_get_drvdata(dai);
++/*	struct rt5350_pcm *pcm = snd_soc_dai_get_drvdata(dai);
+ 	struct clk *parent;
+ 	int ret = 0;
+ 
+ 	switch (clk_id) {
+-	case JZ4740_I2S_CLKSRC_EXT:
++	case RT5350_PCM_CLKSRC_EXT:
+ 		parent = clk_get(NULL, "ext");
+-		clk_set_parent(i2s->clk_i2s, parent);
++		clk_set_parent(pcm->clk_pcm, parent);
+ 		break;
+-	case JZ4740_I2S_CLKSRC_PLL:
++	case RT5350_PCM_CLKSRC_PLL:
+ 		parent = clk_get(NULL, "pll half");
+-		clk_set_parent(i2s->clk_i2s, parent);
+-		ret = clk_set_rate(i2s->clk_i2s, freq);
++		clk_set_parent(pcm->clk_pcm, parent);
++		ret = clk_set_rate(pcm->clk_pcm, freq);
+ 		break;
+ 	default:
+ 		return -EINVAL;
+@@ -237,61 +237,61 @@ static int mt7620_i2s_set_sysclk(struct
+ 	return 0;
+ }
+ 
+-static int mt7620_i2s_suspend(struct snd_soc_dai *dai)
++static int rt5350_pcm_suspend(struct snd_soc_dai *dai)
+ {
+-	struct mt7620_i2s *i2s = snd_soc_dai_get_drvdata(dai);
++	struct rt5350_pcm *pcm = snd_soc_dai_get_drvdata(dai);
+ 	uint32_t cfg;
+ 
+ 	if (dai->active) {
+-		cfg = mt7620_i2s_read(i2s, I2S_REG_CFG0);
+-		cfg &= ~I2S_REG_CFG0_TX_EN;
+-		mt7620_i2s_write(i2s, I2S_REG_CFG0, cfg);
++		cfg = rt5350_pcm_read(pcm, PCM_REG_CFG0);
++		cfg &= ~PCM_REG_CFG0_TX_EN;
++		rt5350_pcm_write(pcm, PCM_REG_CFG0, cfg);
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-static int mt7620_i2s_resume(struct snd_soc_dai *dai)
++static int rt5350_pcm_resume(struct snd_soc_dai *dai)
+ {
+-	struct mt7620_i2s *i2s = snd_soc_dai_get_drvdata(dai);
++	struct rt5350_pcm *pcm = snd_soc_dai_get_drvdata(dai);
+ 	uint32_t cfg;
+ 
+ 	if (dai->active) {
+-		cfg = mt7620_i2s_read(i2s, I2S_REG_CFG0);
+-		cfg |= I2S_REG_CFG0_TX_EN;
+-		mt7620_i2s_write(i2s, I2S_REG_CFG0, cfg);
++		cfg = rt5350_pcm_read(pcm, PCM_REG_CFG0);
++		cfg |= PCM_REG_CFG0_TX_EN;
++		rt5350_pcm_write(pcm, PCM_REG_CFG0, cfg);
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-static void mt7620_i2c_init_pcm_config(struct mt7620_i2s *i2s)
++static void rt5350_i2c_init_pcm_config(struct rt5350_pcm *pcm)
+ {
+ 	struct snd_dmaengine_dai_dma_data *dma_data;
+ 
+ 	/* Playback */
+-	dma_data = &i2s->playback_dma_data;
++	dma_data = &pcm->playback_dma_data;
+ 	dma_data->maxburst = 16;
+-	dma_data->slave_id = 2; //JZ4740_DMA_TYPE_AIC_TRANSMIT;
+-	dma_data->addr = i2s->phys_base + I2S_REG_WREG;
++	dma_data->slave_id = 2; //RT5350_DMA_TYPE_AIC_TRANSMIT;
++	dma_data->addr = pcm->phys_base + PCM_REG_WREG;
+ 
+ 	/* Capture */
+-	dma_data = &i2s->capture_dma_data;
++	dma_data = &pcm->capture_dma_data;
+ 	dma_data->maxburst = 16;
+-	dma_data->slave_id = 3; //JZ4740_DMA_TYPE_AIC_RECEIVE;
+-	dma_data->addr = i2s->phys_base + I2S_REG_RREG;
++	dma_data->slave_id = 3; //RT5350_DMA_TYPE_AIC_RECEIVE;
++	dma_data->addr = pcm->phys_base + PCM_REG_RREG;
+ }
+ 
+-static int mt7620_i2s_dai_probe(struct snd_soc_dai *dai)
++static int rt5350_pcm_dai_probe(struct snd_soc_dai *dai)
+ {
+-	struct mt7620_i2s *i2s = snd_soc_dai_get_drvdata(dai);
++	struct rt5350_pcm *pcm = snd_soc_dai_get_drvdata(dai);
+ 	uint32_t data;
+ 
+-	mt7620_i2c_init_pcm_config(i2s);
+-	dai->playback_dma_data = &i2s->playback_dma_data;
+-	dai->capture_dma_data = &i2s->capture_dma_data;
++	rt5350_i2c_init_pcm_config(pcm);
++	dai->playback_dma_data = &pcm->playback_dma_data;
++	dai->capture_dma_data = &pcm->capture_dma_data;
+ 
+-	/* set share pins to i2s/gpio mode and i2c mode */
++	/* set share pins to pcm/gpio mode and i2c mode */
+ 	data = rt_sysc_r32(0x60);
+ 	data &= 0xFFFFFFE2;
+ 	data |= 0x00000018;
+@@ -299,56 +299,56 @@ static int mt7620_i2s_dai_probe(struct s
+ 
+ 	printk("Internal REFCLK with fractional division\n");
+ 
+-	mt7620_i2s_write(i2s, I2S_REG_CFG0, I2S_REG_CFG0_DFT_THRES);
+-	mt7620_i2s_write(i2s, I2S_REG_CFG1, 0);
+-	mt7620_i2s_write(i2s, I2S_REG_INT_EN, 0);
+-
+-	mt7620_i2s_write(i2s, I2S_REG_DIVINT, i2sMaster_inclk_int[7]);
+-	mt7620_i2s_write(i2s, I2S_REG_DIVCMP,
+-		i2sMaster_inclk_comp[7] | I2S_REG_CLK_EN);
++	rt5350_pcm_write(pcm, PCM_REG_CFG0, PCM_REG_CFG0_DFT_THRES);
++	rt5350_pcm_write(pcm, PCM_REG_CFG1, 0);
++	rt5350_pcm_write(pcm, PCM_REG_INT_EN, 0);
++
++	rt5350_pcm_write(pcm, PCM_REG_DIVINT, pcmMaster_inclk_int[7]);
++	rt5350_pcm_write(pcm, PCM_REG_DIVCMP,
++		pcmMaster_inclk_comp[7] | PCM_REG_CLK_EN);
+ 
+ 	return 0;
+ }
+ 
+-static int mt7620_i2s_dai_remove(struct snd_soc_dai *dai)
++static int rt5350_pcm_dai_remove(struct snd_soc_dai *dai)
+ {
+ 	return 0;
+ }
+ 
+-static const struct snd_soc_dai_ops mt7620_i2s_dai_ops = {
+-	.startup = mt7620_i2s_startup,
+-	.shutdown = mt7620_i2s_shutdown,
+-	.trigger = mt7620_i2s_trigger,
+-	.hw_params = mt7620_i2s_hw_params,
+-	.set_fmt = mt7620_i2s_set_fmt,
+-	.set_sysclk = mt7620_i2s_set_sysclk,
++static const struct snd_soc_dai_ops rt5350_pcm_dai_ops = {
++	.startup = rt5350_pcm_startup,
++	.shutdown = rt5350_pcm_shutdown,
++	.trigger = rt5350_pcm_trigger,
++	.hw_params = rt5350_pcm_hw_params,
++	.set_fmt = rt5350_pcm_set_fmt,
++	.set_sysclk = rt5350_pcm_set_sysclk,
+ };
+ 
+-#define JZ4740_I2S_FMTS (SNDRV_PCM_FMTBIT_S8 | \
++#define RT5350_PCM_FMTS (SNDRV_PCM_FMTBIT_S8 | \
+ 		SNDRV_PCM_FMTBIT_S16_LE)
+ 
+-static struct snd_soc_dai_driver mt7620_i2s_dai = {
+-	.probe = mt7620_i2s_dai_probe,
+-	.remove = mt7620_i2s_dai_remove,
++static struct snd_soc_dai_driver rt5350_pcm_dai = {
++	.probe = rt5350_pcm_dai_probe,
++	.remove = rt5350_pcm_dai_remove,
+ 	.playback = {
+ 		.channels_min = 1,
+ 		.channels_max = 2,
+ 		.rates = SNDRV_PCM_RATE_8000_48000,
+-		.formats = JZ4740_I2S_FMTS,
++		.formats = RT5350_PCM_FMTS,
+ 	},
+ 	.capture = {
+ 		.channels_min = 2,
+ 		.channels_max = 2,
+ 		.rates = SNDRV_PCM_RATE_8000_48000,
+-		.formats = JZ4740_I2S_FMTS,
++		.formats = RT5350_PCM_FMTS,
+ 	},
+ 	.symmetric_rates = 1,
+-	.ops = &mt7620_i2s_dai_ops,
+-	.suspend = mt7620_i2s_suspend,
+-	.resume = mt7620_i2s_resume,
++	.ops = &rt5350_pcm_dai_ops,
++	.suspend = rt5350_pcm_suspend,
++	.resume = rt5350_pcm_resume,
+ };
+ 
+-static const struct snd_pcm_hardware mt7620_pcm_hardware = {
++static const struct snd_pcm_hardware rt5350_pcm_hardware = {
+ 	.info = SNDRV_PCM_INFO_MMAP |
+ 		SNDRV_PCM_INFO_MMAP_VALID |
+ 		SNDRV_PCM_INFO_INTERLEAVED |
+@@ -362,53 +362,53 @@ static const struct snd_pcm_hardware mt7
+ 	.fifo_size		= 32,
+ };
+ 
+-static const struct snd_dmaengine_pcm_config mt7620_dmaengine_pcm_config = {
++static const struct snd_dmaengine_pcm_config rt5350_dmaengine_pcm_config = {
+ 	.prepare_slave_config = snd_dmaengine_pcm_prepare_slave_config,
+-	.pcm_hardware = &mt7620_pcm_hardware,
++	.pcm_hardware = &rt5350_pcm_hardware,
+ 	.prealloc_buffer_size = 256 * PAGE_SIZE,
+ };
+ 
+-static const struct snd_soc_component_driver mt7620_i2s_component = {
+-	.name = "mt7620-i2s",
++static const struct snd_soc_component_driver rt5350_pcm_component = {
++	.name = "rt5350-pcm",
+ };
+ 
+-static int mt7620_i2s_dev_probe(struct platform_device *pdev)
++static int rt5350_pcm_dev_probe(struct platform_device *pdev)
+ {
+-	struct mt7620_i2s *i2s;
++	struct rt5350_pcm *pcm;
+ 	int ret;
+ 
+ 	snd_dmaengine_pcm_register(&pdev->dev,
+-		&mt7620_dmaengine_pcm_config,
++		&rt5350_dmaengine_pcm_config,
+ 		SND_DMAENGINE_PCM_FLAG_COMPAT);
+ 
+-	i2s = kzalloc(sizeof(*i2s), GFP_KERNEL);
+-	if (!i2s)
++	pcm = kzalloc(sizeof(*pcm), GFP_KERNEL);
++	if (!pcm)
+ 		return -ENOMEM;
+ 
+-	i2s->mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!i2s->mem) {
++	pcm->mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!pcm->mem) {
+ 		ret = -ENOENT;
+ 		goto err_free;
+ 	}
+ 
+-	i2s->mem = request_mem_region(i2s->mem->start, resource_size(i2s->mem),
++	pcm->mem = request_mem_region(pcm->mem->start, resource_size(pcm->mem),
+ 				pdev->name);
+-	if (!i2s->mem) {
++	if (!pcm->mem) {
+ 		ret = -EBUSY;
+ 		goto err_free;
+ 	}
+ 
+-	i2s->base = ioremap_nocache(i2s->mem->start, resource_size(i2s->mem));
+-	if (!i2s->base) {
++	pcm->base = ioremap_nocache(pcm->mem->start, resource_size(pcm->mem));
++	if (!pcm->base) {
+ 		ret = -EBUSY;
+ 		goto err_release_mem_region;
+ 	}
+ 
+-	i2s->phys_base = i2s->mem->start;
++	pcm->phys_base = pcm->mem->start;
+ 
+-	platform_set_drvdata(pdev, i2s);
+-	ret = snd_soc_register_component(&pdev->dev, &mt7620_i2s_component,
+-					 &mt7620_i2s_dai, 1);
++	platform_set_drvdata(pdev, pcm);
++	ret = snd_soc_register_component(&pdev->dev, &rt5350_pcm_component,
++					 &rt5350_pcm_dai, 1);
+ 
+ 	if (!ret) {
+ 		dev_err(&pdev->dev, "loaded\n");
+@@ -416,51 +416,51 @@ static int mt7620_i2s_dev_probe(struct p
+ 	}
+ 
+ 	dev_err(&pdev->dev, "Failed to register DAI\n");
+-	iounmap(i2s->base);
++	iounmap(pcm->base);
+ 
+ err_release_mem_region:
+-	release_mem_region(i2s->mem->start, resource_size(i2s->mem));
++	release_mem_region(pcm->mem->start, resource_size(pcm->mem));
+ err_free:
+-	kfree(i2s);
++	kfree(pcm);
+ 
+ 	return ret;
+ }
+ 
+-static int mt7620_i2s_dev_remove(struct platform_device *pdev)
++static int rt5350_pcm_dev_remove(struct platform_device *pdev)
+ {
+-	struct mt7620_i2s *i2s = platform_get_drvdata(pdev);
++	struct rt5350_pcm *pcm = platform_get_drvdata(pdev);
+ 
+ 	snd_soc_unregister_component(&pdev->dev);
+ 
+-	iounmap(i2s->base);
+-	release_mem_region(i2s->mem->start, resource_size(i2s->mem));
++	iounmap(pcm->base);
++	release_mem_region(pcm->mem->start, resource_size(pcm->mem));
+ 
+-	kfree(i2s);
++	kfree(pcm);
+ 
+ 	snd_dmaengine_pcm_unregister(&pdev->dev);
+ 
+ 	return 0;
+ }
+ 
+-static const struct of_device_id mt7620_i2s_match[] = {
+-	{ .compatible = "ralink,mt7620a-i2s" },
++static const struct of_device_id rt5350_pcm_match[] = {
++	{ .compatible = "ralink,rt5350a-pcm" },
+ 	{},
+ };
+-MODULE_DEVICE_TABLE(of, mt7620_i2s_match);
++MODULE_DEVICE_TABLE(of, rt5350_pcm_match);
+ 
+-static struct platform_driver mt7620_i2s_driver = {
+-	.probe = mt7620_i2s_dev_probe,
+-	.remove = mt7620_i2s_dev_remove,
++static struct platform_driver rt5350_pcm_driver = {
++	.probe = rt5350_pcm_dev_probe,
++	.remove = rt5350_pcm_dev_remove,
+ 	.driver = {
+-		.name = "mt7620-i2s",
++		.name = "rt5350-pcm",
+ 		.owner = THIS_MODULE,
+-		.of_match_table = mt7620_i2s_match,
++		.of_match_table = rt5350_pcm_match,
+ 	},
+ };
+ 
+-module_platform_driver(mt7620_i2s_driver);
++module_platform_driver(rt5350_pcm_driver);
+ 
+ MODULE_AUTHOR("Lars-Peter Clausen, <lars@metafoo.de>");
+-MODULE_DESCRIPTION("Ingenic JZ4740 SoC I2S driver");
++MODULE_DESCRIPTION("Ralink RT5350 SoC PCM driver");
+ MODULE_LICENSE("GPL");
+-MODULE_ALIAS("platform:mt7620-i2s");
++MODULE_ALIAS("platform:rt5350-pcm");
+--- a/sound/soc/codecs/le89156.c
++++ b/sound/soc/codecs/le89156.c
+@@ -1,5 +1,5 @@
+ /*
+- * wm8960.c  --  WM8960 ALSA SoC Audio driver
++ * le89156.c  --  LE89156 ALSA SoC Audio driver
+  *
+  * Copyright 2007-11 Wolfson Microelectronics, plc
+  *
+@@ -23,36 +23,36 @@
+ #include <sound/soc.h>
+ #include <sound/initval.h>
+ #include <sound/tlv.h>
+-#include <sound/wm8960.h>
++#include <sound/le89156.h>
+ 
+-#include "wm8960.h"
++#include "le89156.h"
+ 
+ /* R25 - Power 1 */
+-#define WM8960_VMID_MASK 0x180
+-#define WM8960_VREF      0x40
++#define LE89156_VMID_MASK 0x180
++#define LE89156_VREF      0x40
+ 
+ /* R26 - Power 2 */
+-#define WM8960_PWR2_LOUT1	0x40
+-#define WM8960_PWR2_ROUT1	0x20
+-#define WM8960_PWR2_OUT3	0x02
++#define LE89156_PWR2_LOUT1	0x40
++#define LE89156_PWR2_ROUT1	0x20
++#define LE89156_PWR2_OUT3	0x02
+ 
+ /* R28 - Anti-pop 1 */
+-#define WM8960_POBCTRL   0x80
+-#define WM8960_BUFDCOPEN 0x10
+-#define WM8960_BUFIOEN   0x08
+-#define WM8960_SOFT_ST   0x04
+-#define WM8960_HPSTBY    0x01
++#define LE89156_POBCTRL   0x80
++#define LE89156_BUFDCOPEN 0x10
++#define LE89156_BUFIOEN   0x08
++#define LE89156_SOFT_ST   0x04
++#define LE89156_HPSTBY    0x01
+ 
+ /* R29 - Anti-pop 2 */
+-#define WM8960_DISOP     0x40
+-#define WM8960_DRES_MASK 0x30
++#define LE89156_DISOP     0x40
++#define LE89156_DRES_MASK 0x30
+ 
+ /*
+- * wm8960 register cache
+- * We can't read the WM8960 register space when we are
++ * le89156 register cache
++ * We can't read the LE89156 register space when we are
+  * using 2 wire for device control, so we cache them instead.
+  */
+-static const struct reg_default wm8960_reg_defaults[] = {
++static const struct reg_default le89156_reg_defaults[] = {
+ 	{  0x0, 0x00a7 },
+ 	{  0x1, 0x00a7 },
+ 	{  0x2, 0x0000 },
+@@ -106,17 +106,17 @@ static const struct reg_default wm8960_r
+ 	{ 0x37, 0x00e9 },
+ };
+ 
+-static bool wm8960_volatile(struct device *dev, unsigned int reg)
++static bool le89156_volatile(struct device *dev, unsigned int reg)
+ {
+ 	switch (reg) {
+-	case WM8960_RESET:
++	case LE89156_RESET:
+ 		return true;
+ 	default:
+ 		return false;
+ 	}
+ }
+ 
+-struct wm8960_priv {
++struct le89156_priv {
+ 	struct regmap *regmap;
+ 	int (*set_bias_level)(struct snd_soc_codec *,
+ 			      enum snd_soc_bias_level level);
+@@ -127,40 +127,40 @@ struct wm8960_priv {
+ 	int playback_fs;
+ };
+ 
+-#define wm8960_reset(c)	snd_soc_write(c, WM8960_RESET, 0)
++#define le89156_reset(c)	snd_soc_write(c, LE89156_RESET, 0)
+ 
+ /* enumerated controls */
+-static const char *wm8960_polarity[] = {"No Inversion", "Left Inverted",
++static const char *le89156_polarity[] = {"No Inversion", "Left Inverted",
+ 	"Right Inverted", "Stereo Inversion"};
+-static const char *wm8960_3d_upper_cutoff[] = {"High", "Low"};
+-static const char *wm8960_3d_lower_cutoff[] = {"Low", "High"};
+-static const char *wm8960_alcfunc[] = {"Off", "Right", "Left", "Stereo"};
+-static const char *wm8960_alcmode[] = {"ALC", "Limiter"};
+-
+-static const struct soc_enum wm8960_enum[] = {
+-	SOC_ENUM_SINGLE(WM8960_DACCTL1, 5, 4, wm8960_polarity),
+-	SOC_ENUM_SINGLE(WM8960_DACCTL2, 5, 4, wm8960_polarity),
+-	SOC_ENUM_SINGLE(WM8960_3D, 6, 2, wm8960_3d_upper_cutoff),
+-	SOC_ENUM_SINGLE(WM8960_3D, 5, 2, wm8960_3d_lower_cutoff),
+-	SOC_ENUM_SINGLE(WM8960_ALC1, 7, 4, wm8960_alcfunc),
+-	SOC_ENUM_SINGLE(WM8960_ALC3, 8, 2, wm8960_alcmode),
++static const char *le89156_3d_upper_cutoff[] = {"High", "Low"};
++static const char *le89156_3d_lower_cutoff[] = {"Low", "High"};
++static const char *le89156_alcfunc[] = {"Off", "Right", "Left", "Stereo"};
++static const char *le89156_alcmode[] = {"ALC", "Limiter"};
++
++static const struct soc_enum le89156_enum[] = {
++	SOC_ENUM_SINGLE(LE89156_DACCTL1, 5, 4, le89156_polarity),
++	SOC_ENUM_SINGLE(LE89156_DACCTL2, 5, 4, le89156_polarity),
++	SOC_ENUM_SINGLE(LE89156_3D, 6, 2, le89156_3d_upper_cutoff),
++	SOC_ENUM_SINGLE(LE89156_3D, 5, 2, le89156_3d_lower_cutoff),
++	SOC_ENUM_SINGLE(LE89156_ALC1, 7, 4, le89156_alcfunc),
++	SOC_ENUM_SINGLE(LE89156_ALC3, 8, 2, le89156_alcmode),
+ };
+ 
+ static const int deemph_settings[] = { 0, 32000, 44100, 48000 };
+ 
+-static int wm8960_set_deemph(struct snd_soc_codec *codec)
++static int le89156_set_deemph(struct snd_soc_codec *codec)
+ {
+-	struct wm8960_priv *wm8960 = snd_soc_codec_get_drvdata(codec);
++	struct le89156_priv *le89156 = snd_soc_codec_get_drvdata(codec);
+ 	int val, i, best;
+ 
+ 	/* If we're using deemphasis select the nearest available sample
+ 	 * rate.
+ 	 */
+-	if (wm8960->deemph) {
++	if (le89156->deemph) {
+ 		best = 1;
+ 		for (i = 2; i < ARRAY_SIZE(deemph_settings); i++) {
+-			if (abs(deemph_settings[i] - wm8960->playback_fs) <
+-			    abs(deemph_settings[best] - wm8960->playback_fs))
++			if (abs(deemph_settings[i] - le89156->playback_fs) <
++			    abs(deemph_settings[best] - le89156->playback_fs))
+ 				best = i;
+ 		}
+ 
+@@ -171,33 +171,33 @@ static int wm8960_set_deemph(struct snd_
+ 
+ 	dev_dbg(codec->dev, "Set deemphasis %d\n", val);
+ 
+-	return snd_soc_update_bits(codec, WM8960_DACCTL1,
++	return snd_soc_update_bits(codec, LE89156_DACCTL1,
+ 				   0x6, val);
+ }
+ 
+-static int wm8960_get_deemph(struct snd_kcontrol *kcontrol,
++static int le89156_get_deemph(struct snd_kcontrol *kcontrol,
+ 			     struct snd_ctl_elem_value *ucontrol)
+ {
+ 	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+-	struct wm8960_priv *wm8960 = snd_soc_codec_get_drvdata(codec);
++	struct le89156_priv *le89156 = snd_soc_codec_get_drvdata(codec);
+ 
+-	ucontrol->value.enumerated.item[0] = wm8960->deemph;
++	ucontrol->value.enumerated.item[0] = le89156->deemph;
+ 	return 0;
+ }
+ 
+-static int wm8960_put_deemph(struct snd_kcontrol *kcontrol,
++static int le89156_put_deemph(struct snd_kcontrol *kcontrol,
+ 			     struct snd_ctl_elem_value *ucontrol)
+ {
+ 	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+-	struct wm8960_priv *wm8960 = snd_soc_codec_get_drvdata(codec);
++	struct le89156_priv *le89156 = snd_soc_codec_get_drvdata(codec);
+ 	int deemph = ucontrol->value.enumerated.item[0];
+ 
+ 	if (deemph > 1)
+ 		return -EINVAL;
+ 
+-	wm8960->deemph = deemph;
++	le89156->deemph = deemph;
+ 
+-	return wm8960_set_deemph(codec);
++	return le89156_set_deemph(codec);
+ }
+ 
+ static const DECLARE_TLV_DB_SCALE(adc_tlv, -9700, 50, 0);
+@@ -206,114 +206,114 @@ static const DECLARE_TLV_DB_SCALE(bypass
+ static const DECLARE_TLV_DB_SCALE(out_tlv, -12100, 100, 1);
+ static const DECLARE_TLV_DB_SCALE(boost_tlv, -1200, 300, 1);
+ 
+-static const struct snd_kcontrol_new wm8960_snd_controls[] = {
+-SOC_DOUBLE_R_TLV("Capture Volume", WM8960_LINVOL, WM8960_RINVOL,
++static const struct snd_kcontrol_new le89156_snd_controls[] = {
++SOC_DOUBLE_R_TLV("Capture Volume", LE89156_LINVOL, LE89156_RINVOL,
+ 		 0, 63, 0, adc_tlv),
+-SOC_DOUBLE_R("Capture Volume ZC Switch", WM8960_LINVOL, WM8960_RINVOL,
++SOC_DOUBLE_R("Capture Volume ZC Switch", LE89156_LINVOL, LE89156_RINVOL,
+ 	6, 1, 0),
+-SOC_DOUBLE_R("Capture Switch", WM8960_LINVOL, WM8960_RINVOL,
++SOC_DOUBLE_R("Capture Switch", LE89156_LINVOL, LE89156_RINVOL,
+ 	7, 1, 0),
+ 
+ SOC_SINGLE_TLV("Right Input Boost Mixer RINPUT3 Volume",
+-	       WM8960_INBMIX1, 4, 7, 0, boost_tlv),
++	       LE89156_INBMIX1, 4, 7, 0, boost_tlv),
+ SOC_SINGLE_TLV("Right Input Boost Mixer RINPUT2 Volume",
+-	       WM8960_INBMIX1, 1, 7, 0, boost_tlv),
++	       LE89156_INBMIX1, 1, 7, 0, boost_tlv),
+ SOC_SINGLE_TLV("Left Input Boost Mixer LINPUT3 Volume",
+-	       WM8960_INBMIX2, 4, 7, 0, boost_tlv),
++	       LE89156_INBMIX2, 4, 7, 0, boost_tlv),
+ SOC_SINGLE_TLV("Left Input Boost Mixer LINPUT2 Volume",
+-	       WM8960_INBMIX2, 1, 7, 0, boost_tlv),
++	       LE89156_INBMIX2, 1, 7, 0, boost_tlv),
+ 
+-SOC_DOUBLE_R_TLV("Playback Volume", WM8960_LDAC, WM8960_RDAC,
++SOC_DOUBLE_R_TLV("Playback Volume", LE89156_LDAC, LE89156_RDAC,
+ 		 0, 255, 0, dac_tlv),
+ 
+-SOC_DOUBLE_R_TLV("Headphone Playback Volume", WM8960_LOUT1, WM8960_ROUT1,
++SOC_DOUBLE_R_TLV("Headphone Playback Volume", LE89156_LOUT1, LE89156_ROUT1,
+ 		 0, 127, 0, out_tlv),
+-SOC_DOUBLE_R("Headphone Playback ZC Switch", WM8960_LOUT1, WM8960_ROUT1,
++SOC_DOUBLE_R("Headphone Playback ZC Switch", LE89156_LOUT1, LE89156_ROUT1,
+ 	7, 1, 0),
+ 
+-SOC_DOUBLE_R_TLV("Speaker Playback Volume", WM8960_LOUT2, WM8960_ROUT2,
++SOC_DOUBLE_R_TLV("Speaker Playback Volume", LE89156_LOUT2, LE89156_ROUT2,
+ 		 0, 127, 0, out_tlv),
+-SOC_DOUBLE_R("Speaker Playback ZC Switch", WM8960_LOUT2, WM8960_ROUT2,
++SOC_DOUBLE_R("Speaker Playback ZC Switch", LE89156_LOUT2, LE89156_ROUT2,
+ 	7, 1, 0),
+-SOC_SINGLE("Speaker DC Volume", WM8960_CLASSD3, 3, 5, 0),
+-SOC_SINGLE("Speaker AC Volume", WM8960_CLASSD3, 0, 5, 0),
++SOC_SINGLE("Speaker DC Volume", LE89156_CLASSD3, 3, 5, 0),
++SOC_SINGLE("Speaker AC Volume", LE89156_CLASSD3, 0, 5, 0),
+ 
+-SOC_SINGLE("PCM Playback -6dB Switch", WM8960_DACCTL1, 7, 1, 0),
+-SOC_ENUM("ADC Polarity", wm8960_enum[0]),
+-SOC_SINGLE("ADC High Pass Filter Switch", WM8960_DACCTL1, 0, 1, 0),
++SOC_SINGLE("PCM Playback -6dB Switch", LE89156_DACCTL1, 7, 1, 0),
++SOC_ENUM("ADC Polarity", le89156_enum[0]),
++SOC_SINGLE("ADC High Pass Filter Switch", LE89156_DACCTL1, 0, 1, 0),
+ 
+-SOC_ENUM("DAC Polarity", wm8960_enum[2]),
++SOC_ENUM("DAC Polarity", le89156_enum[2]),
+ SOC_SINGLE_BOOL_EXT("DAC Deemphasis Switch", 0,
+-		    wm8960_get_deemph, wm8960_put_deemph),
++		    le89156_get_deemph, le89156_put_deemph),
+ 
+-SOC_ENUM("3D Filter Upper Cut-Off", wm8960_enum[2]),
+-SOC_ENUM("3D Filter Lower Cut-Off", wm8960_enum[3]),
+-SOC_SINGLE("3D Volume", WM8960_3D, 1, 15, 0),
+-SOC_SINGLE("3D Switch", WM8960_3D, 0, 1, 0),
+-
+-SOC_ENUM("ALC Function", wm8960_enum[4]),
+-SOC_SINGLE("ALC Max Gain", WM8960_ALC1, 4, 7, 0),
+-SOC_SINGLE("ALC Target", WM8960_ALC1, 0, 15, 1),
+-SOC_SINGLE("ALC Min Gain", WM8960_ALC2, 4, 7, 0),
+-SOC_SINGLE("ALC Hold Time", WM8960_ALC2, 0, 15, 0),
+-SOC_ENUM("ALC Mode", wm8960_enum[5]),
+-SOC_SINGLE("ALC Decay", WM8960_ALC3, 4, 15, 0),
+-SOC_SINGLE("ALC Attack", WM8960_ALC3, 0, 15, 0),
++SOC_ENUM("3D Filter Upper Cut-Off", le89156_enum[2]),
++SOC_ENUM("3D Filter Lower Cut-Off", le89156_enum[3]),
++SOC_SINGLE("3D Volume", LE89156_3D, 1, 15, 0),
++SOC_SINGLE("3D Switch", LE89156_3D, 0, 1, 0),
++
++SOC_ENUM("ALC Function", le89156_enum[4]),
++SOC_SINGLE("ALC Max Gain", LE89156_ALC1, 4, 7, 0),
++SOC_SINGLE("ALC Target", LE89156_ALC1, 0, 15, 1),
++SOC_SINGLE("ALC Min Gain", LE89156_ALC2, 4, 7, 0),
++SOC_SINGLE("ALC Hold Time", LE89156_ALC2, 0, 15, 0),
++SOC_ENUM("ALC Mode", le89156_enum[5]),
++SOC_SINGLE("ALC Decay", LE89156_ALC3, 4, 15, 0),
++SOC_SINGLE("ALC Attack", LE89156_ALC3, 0, 15, 0),
+ 
+-SOC_SINGLE("Noise Gate Threshold", WM8960_NOISEG, 3, 31, 0),
+-SOC_SINGLE("Noise Gate Switch", WM8960_NOISEG, 0, 1, 0),
++SOC_SINGLE("Noise Gate Threshold", LE89156_NOISEG, 3, 31, 0),
++SOC_SINGLE("Noise Gate Switch", LE89156_NOISEG, 0, 1, 0),
+ 
+-SOC_DOUBLE_R("ADC PCM Capture Volume", WM8960_LINPATH, WM8960_RINPATH,
++SOC_DOUBLE_R("ADC PCM Capture Volume", LE89156_LINPATH, LE89156_RINPATH,
+ 	0, 127, 0),
+ 
+ SOC_SINGLE_TLV("Left Output Mixer Boost Bypass Volume",
+-	       WM8960_BYPASS1, 4, 7, 1, bypass_tlv),
++	       LE89156_BYPASS1, 4, 7, 1, bypass_tlv),
+ SOC_SINGLE_TLV("Left Output Mixer LINPUT3 Volume",
+-	       WM8960_LOUTMIX, 4, 7, 1, bypass_tlv),
++	       LE89156_LOUTMIX, 4, 7, 1, bypass_tlv),
+ SOC_SINGLE_TLV("Right Output Mixer Boost Bypass Volume",
+-	       WM8960_BYPASS2, 4, 7, 1, bypass_tlv),
++	       LE89156_BYPASS2, 4, 7, 1, bypass_tlv),
+ SOC_SINGLE_TLV("Right Output Mixer RINPUT3 Volume",
+-	       WM8960_ROUTMIX, 4, 7, 1, bypass_tlv),
++	       LE89156_ROUTMIX, 4, 7, 1, bypass_tlv),
+ };
+ 
+-static const struct snd_kcontrol_new wm8960_lin_boost[] = {
+-SOC_DAPM_SINGLE("LINPUT2 Switch", WM8960_LINPATH, 6, 1, 0),
+-SOC_DAPM_SINGLE("LINPUT3 Switch", WM8960_LINPATH, 7, 1, 0),
+-SOC_DAPM_SINGLE("LINPUT1 Switch", WM8960_LINPATH, 8, 1, 0),
++static const struct snd_kcontrol_new le89156_lin_boost[] = {
++SOC_DAPM_SINGLE("LINPUT2 Switch", LE89156_LINPATH, 6, 1, 0),
++SOC_DAPM_SINGLE("LINPUT3 Switch", LE89156_LINPATH, 7, 1, 0),
++SOC_DAPM_SINGLE("LINPUT1 Switch", LE89156_LINPATH, 8, 1, 0),
+ };
+ 
+-static const struct snd_kcontrol_new wm8960_lin[] = {
+-SOC_DAPM_SINGLE("Boost Switch", WM8960_LINPATH, 3, 1, 0),
++static const struct snd_kcontrol_new le89156_lin[] = {
++SOC_DAPM_SINGLE("Boost Switch", LE89156_LINPATH, 3, 1, 0),
+ };
+ 
+-static const struct snd_kcontrol_new wm8960_rin_boost[] = {
+-SOC_DAPM_SINGLE("RINPUT2 Switch", WM8960_RINPATH, 6, 1, 0),
+-SOC_DAPM_SINGLE("RINPUT3 Switch", WM8960_RINPATH, 7, 1, 0),
+-SOC_DAPM_SINGLE("RINPUT1 Switch", WM8960_RINPATH, 8, 1, 0),
++static const struct snd_kcontrol_new le89156_rin_boost[] = {
++SOC_DAPM_SINGLE("RINPUT2 Switch", LE89156_RINPATH, 6, 1, 0),
++SOC_DAPM_SINGLE("RINPUT3 Switch", LE89156_RINPATH, 7, 1, 0),
++SOC_DAPM_SINGLE("RINPUT1 Switch", LE89156_RINPATH, 8, 1, 0),
+ };
+ 
+-static const struct snd_kcontrol_new wm8960_rin[] = {
+-SOC_DAPM_SINGLE("Boost Switch", WM8960_RINPATH, 3, 1, 0),
++static const struct snd_kcontrol_new le89156_rin[] = {
++SOC_DAPM_SINGLE("Boost Switch", LE89156_RINPATH, 3, 1, 0),
+ };
+ 
+-static const struct snd_kcontrol_new wm8960_loutput_mixer[] = {
+-SOC_DAPM_SINGLE("PCM Playback Switch", WM8960_LOUTMIX, 8, 1, 0),
+-SOC_DAPM_SINGLE("LINPUT3 Switch", WM8960_LOUTMIX, 7, 1, 0),
+-SOC_DAPM_SINGLE("Boost Bypass Switch", WM8960_BYPASS1, 7, 1, 0),
++static const struct snd_kcontrol_new le89156_loutput_mixer[] = {
++SOC_DAPM_SINGLE("PCM Playback Switch", LE89156_LOUTMIX, 8, 1, 0),
++SOC_DAPM_SINGLE("LINPUT3 Switch", LE89156_LOUTMIX, 7, 1, 0),
++SOC_DAPM_SINGLE("Boost Bypass Switch", LE89156_BYPASS1, 7, 1, 0),
+ };
+ 
+-static const struct snd_kcontrol_new wm8960_routput_mixer[] = {
+-SOC_DAPM_SINGLE("PCM Playback Switch", WM8960_ROUTMIX, 8, 1, 0),
+-SOC_DAPM_SINGLE("RINPUT3 Switch", WM8960_ROUTMIX, 7, 1, 0),
+-SOC_DAPM_SINGLE("Boost Bypass Switch", WM8960_BYPASS2, 7, 1, 0),
++static const struct snd_kcontrol_new le89156_routput_mixer[] = {
++SOC_DAPM_SINGLE("PCM Playback Switch", LE89156_ROUTMIX, 8, 1, 0),
++SOC_DAPM_SINGLE("RINPUT3 Switch", LE89156_ROUTMIX, 7, 1, 0),
++SOC_DAPM_SINGLE("Boost Bypass Switch", LE89156_BYPASS2, 7, 1, 0),
+ };
+ 
+-static const struct snd_kcontrol_new wm8960_mono_out[] = {
+-SOC_DAPM_SINGLE("Left Switch", WM8960_MONOMIX1, 7, 1, 0),
+-SOC_DAPM_SINGLE("Right Switch", WM8960_MONOMIX2, 7, 1, 0),
++static const struct snd_kcontrol_new le89156_mono_out[] = {
++SOC_DAPM_SINGLE("Left Switch", LE89156_MONOMIX1, 7, 1, 0),
++SOC_DAPM_SINGLE("Right Switch", LE89156_MONOMIX2, 7, 1, 0),
+ };
+ 
+-static const struct snd_soc_dapm_widget wm8960_dapm_widgets[] = {
++static const struct snd_soc_dapm_widget le89156_dapm_widgets[] = {
+ SND_SOC_DAPM_INPUT("LINPUT1"),
+ SND_SOC_DAPM_INPUT("RINPUT1"),
+ SND_SOC_DAPM_INPUT("LINPUT2"),
+@@ -321,39 +321,39 @@ SND_SOC_DAPM_INPUT("RINPUT2"),
+ SND_SOC_DAPM_INPUT("LINPUT3"),
+ SND_SOC_DAPM_INPUT("RINPUT3"),
+ 
+-SND_SOC_DAPM_SUPPLY("MICB", WM8960_POWER1, 1, 0, NULL, 0),
++SND_SOC_DAPM_SUPPLY("MICB", LE89156_POWER1, 1, 0, NULL, 0),
+ 
+-SND_SOC_DAPM_MIXER("Left Boost Mixer", WM8960_POWER1, 5, 0,
+-		   wm8960_lin_boost, ARRAY_SIZE(wm8960_lin_boost)),
+-SND_SOC_DAPM_MIXER("Right Boost Mixer", WM8960_POWER1, 4, 0,
+-		   wm8960_rin_boost, ARRAY_SIZE(wm8960_rin_boost)),
+-
+-SND_SOC_DAPM_MIXER("Left Input Mixer", WM8960_POWER3, 5, 0,
+-		   wm8960_lin, ARRAY_SIZE(wm8960_lin)),
+-SND_SOC_DAPM_MIXER("Right Input Mixer", WM8960_POWER3, 4, 0,
+-		   wm8960_rin, ARRAY_SIZE(wm8960_rin)),
+-
+-SND_SOC_DAPM_ADC("Left ADC", "Capture", WM8960_POWER1, 3, 0),
+-SND_SOC_DAPM_ADC("Right ADC", "Capture", WM8960_POWER1, 2, 0),
+-
+-SND_SOC_DAPM_DAC("Left DAC", "Playback", WM8960_POWER2, 8, 0),
+-SND_SOC_DAPM_DAC("Right DAC", "Playback", WM8960_POWER2, 7, 0),
+-
+-SND_SOC_DAPM_MIXER("Left Output Mixer", WM8960_POWER3, 3, 0,
+-	&wm8960_loutput_mixer[0],
+-	ARRAY_SIZE(wm8960_loutput_mixer)),
+-SND_SOC_DAPM_MIXER("Right Output Mixer", WM8960_POWER3, 2, 0,
+-	&wm8960_routput_mixer[0],
+-	ARRAY_SIZE(wm8960_routput_mixer)),
++SND_SOC_DAPM_MIXER("Left Boost Mixer", LE89156_POWER1, 5, 0,
++		   le89156_lin_boost, ARRAY_SIZE(le89156_lin_boost)),
++SND_SOC_DAPM_MIXER("Right Boost Mixer", LE89156_POWER1, 4, 0,
++		   le89156_rin_boost, ARRAY_SIZE(le89156_rin_boost)),
++
++SND_SOC_DAPM_MIXER("Left Input Mixer", LE89156_POWER3, 5, 0,
++		   le89156_lin, ARRAY_SIZE(le89156_lin)),
++SND_SOC_DAPM_MIXER("Right Input Mixer", LE89156_POWER3, 4, 0,
++		   le89156_rin, ARRAY_SIZE(le89156_rin)),
++
++SND_SOC_DAPM_ADC("Left ADC", "Capture", LE89156_POWER1, 3, 0),
++SND_SOC_DAPM_ADC("Right ADC", "Capture", LE89156_POWER1, 2, 0),
++
++SND_SOC_DAPM_DAC("Left DAC", "Playback", LE89156_POWER2, 8, 0),
++SND_SOC_DAPM_DAC("Right DAC", "Playback", LE89156_POWER2, 7, 0),
++
++SND_SOC_DAPM_MIXER("Left Output Mixer", LE89156_POWER3, 3, 0,
++	&le89156_loutput_mixer[0],
++	ARRAY_SIZE(le89156_loutput_mixer)),
++SND_SOC_DAPM_MIXER("Right Output Mixer", LE89156_POWER3, 2, 0,
++	&le89156_routput_mixer[0],
++	ARRAY_SIZE(le89156_routput_mixer)),
+ 
+-SND_SOC_DAPM_PGA("LOUT1 PGA", WM8960_POWER2, 6, 0, NULL, 0),
+-SND_SOC_DAPM_PGA("ROUT1 PGA", WM8960_POWER2, 5, 0, NULL, 0),
++SND_SOC_DAPM_PGA("LOUT1 PGA", LE89156_POWER2, 6, 0, NULL, 0),
++SND_SOC_DAPM_PGA("ROUT1 PGA", LE89156_POWER2, 5, 0, NULL, 0),
+ 
+-SND_SOC_DAPM_PGA("Left Speaker PGA", WM8960_POWER2, 4, 0, NULL, 0),
+-SND_SOC_DAPM_PGA("Right Speaker PGA", WM8960_POWER2, 3, 0, NULL, 0),
++SND_SOC_DAPM_PGA("Left Speaker PGA", LE89156_POWER2, 4, 0, NULL, 0),
++SND_SOC_DAPM_PGA("Right Speaker PGA", LE89156_POWER2, 3, 0, NULL, 0),
+ 
+-SND_SOC_DAPM_PGA("Right Speaker Output", WM8960_CLASSD1, 7, 0, NULL, 0),
+-SND_SOC_DAPM_PGA("Left Speaker Output", WM8960_CLASSD1, 6, 0, NULL, 0),
++SND_SOC_DAPM_PGA("Right Speaker Output", LE89156_CLASSD1, 7, 0, NULL, 0),
++SND_SOC_DAPM_PGA("Left Speaker Output", LE89156_CLASSD1, 6, 0, NULL, 0),
+ 
+ SND_SOC_DAPM_OUTPUT("SPK_LP"),
+ SND_SOC_DAPM_OUTPUT("SPK_LN"),
+@@ -364,15 +364,15 @@ SND_SOC_DAPM_OUTPUT("SPK_RN"),
+ SND_SOC_DAPM_OUTPUT("OUT3"),
+ };
+ 
+-static const struct snd_soc_dapm_widget wm8960_dapm_widgets_out3[] = {
+-SND_SOC_DAPM_MIXER("Mono Output Mixer", WM8960_POWER2, 1, 0,
+-	&wm8960_mono_out[0],
+-	ARRAY_SIZE(wm8960_mono_out)),
++static const struct snd_soc_dapm_widget le89156_dapm_widgets_out3[] = {
++SND_SOC_DAPM_MIXER("Mono Output Mixer", LE89156_POWER2, 1, 0,
++	&le89156_mono_out[0],
++	ARRAY_SIZE(le89156_mono_out)),
+ };
+ 
+ /* Represent OUT3 as a PGA so that it gets turned on with LOUT1/ROUT1 */
+-static const struct snd_soc_dapm_widget wm8960_dapm_widgets_capless[] = {
+-SND_SOC_DAPM_PGA("OUT3 VMID", WM8960_POWER2, 1, 0, NULL, 0),
++static const struct snd_soc_dapm_widget le89156_dapm_widgets_capless[] = {
++SND_SOC_DAPM_PGA("OUT3 VMID", LE89156_POWER2, 1, 0, NULL, 0),
+ };
+ 
+ static const struct snd_soc_dapm_route audio_paths[] = {
+@@ -438,15 +438,15 @@ static const struct snd_soc_dapm_route a
+ 	{ "OUT3 VMID", NULL, "Right Output Mixer" },
+ };
+ 
+-static int wm8960_add_widgets(struct snd_soc_codec *codec)
++static int le89156_add_widgets(struct snd_soc_codec *codec)
+ {
+-	struct wm8960_data *pdata = codec->dev->platform_data;
+-	struct wm8960_priv *wm8960 = snd_soc_codec_get_drvdata(codec);
++	struct le89156_data *pdata = codec->dev->platform_data;
++	struct le89156_priv *le89156 = snd_soc_codec_get_drvdata(codec);
+ 	struct snd_soc_dapm_context *dapm = &codec->dapm;
+ 	struct snd_soc_dapm_widget *w;
+ 
+-	snd_soc_dapm_new_controls(dapm, wm8960_dapm_widgets,
+-				  ARRAY_SIZE(wm8960_dapm_widgets));
++	snd_soc_dapm_new_controls(dapm, le89156_dapm_widgets,
++				  ARRAY_SIZE(le89156_dapm_widgets));
+ 
+ 	snd_soc_dapm_add_routes(dapm, audio_paths, ARRAY_SIZE(audio_paths));
+ 
+@@ -454,14 +454,14 @@ static int wm8960_add_widgets(struct snd
+ 	 * headphone outputs, otherwise it is used as a mono mixer.
+ 	 */
+ 	if (pdata && pdata->capless) {
+-		snd_soc_dapm_new_controls(dapm, wm8960_dapm_widgets_capless,
+-					  ARRAY_SIZE(wm8960_dapm_widgets_capless));
++		snd_soc_dapm_new_controls(dapm, le89156_dapm_widgets_capless,
++					  ARRAY_SIZE(le89156_dapm_widgets_capless));
+ 
+ 		snd_soc_dapm_add_routes(dapm, audio_paths_capless,
+ 					ARRAY_SIZE(audio_paths_capless));
+ 	} else {
+-		snd_soc_dapm_new_controls(dapm, wm8960_dapm_widgets_out3,
+-					  ARRAY_SIZE(wm8960_dapm_widgets_out3));
++		snd_soc_dapm_new_controls(dapm, le89156_dapm_widgets_out3,
++					  ARRAY_SIZE(le89156_dapm_widgets_out3));
+ 
+ 		snd_soc_dapm_add_routes(dapm, audio_paths_out3,
+ 					ARRAY_SIZE(audio_paths_out3));
+@@ -476,17 +476,17 @@ static int wm8960_add_widgets(struct snd
+ 		if (w->dapm != &codec->dapm)
+ 			continue;
+ 		if (strcmp(w->name, "LOUT1 PGA") == 0)
+-			wm8960->lout1 = w;
++			le89156->lout1 = w;
+ 		if (strcmp(w->name, "ROUT1 PGA") == 0)
+-			wm8960->rout1 = w;
++			le89156->rout1 = w;
+ 		if (strcmp(w->name, "OUT3 VMID") == 0)
+-			wm8960->out3 = w;
++			le89156->out3 = w;
+ 	}
+ 	
+ 	return 0;
+ }
+ 
+-static int wm8960_set_dai_fmt(struct snd_soc_dai *codec_dai,
++static int le89156_set_dai_fmt(struct snd_soc_dai *codec_dai,
+ 		unsigned int fmt)
+ {
+ 	struct snd_soc_codec *codec = codec_dai->codec;
+@@ -541,7 +541,7 @@ static int wm8960_set_dai_fmt(struct snd
+ 	}
+ 
+ 	/* set iface */
+-	snd_soc_write(codec, WM8960_IFACE1, iface);
++	snd_soc_write(codec, LE89156_IFACE1, iface);
+ 	return 0;
+ }
+ 
+@@ -560,13 +560,13 @@ static struct {
+ 	{  8000, 5 },
+ };
+ 
+-static int wm8960_hw_params(struct snd_pcm_substream *substream,
++static int le89156_hw_params(struct snd_pcm_substream *substream,
+ 			    struct snd_pcm_hw_params *params,
+ 			    struct snd_soc_dai *dai)
+ {
+ 	struct snd_soc_codec *codec = dai->codec;
+-	struct wm8960_priv *wm8960 = snd_soc_codec_get_drvdata(codec);
+-	u16 iface = snd_soc_read(codec, WM8960_IFACE1) & 0xfff3;
++	struct le89156_priv *le89156 = snd_soc_codec_get_drvdata(codec);
++	u16 iface = snd_soc_read(codec, LE89156_IFACE1) & 0xfff3;
+ 	snd_pcm_format_t format = params_format(params);
+ 	int i;
+ 
+@@ -590,36 +590,36 @@ static int wm8960_hw_params(struct snd_p
+ 
+ 	/* Update filters for the new rate */
+ 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
+-		wm8960->playback_fs = params_rate(params);
+-		wm8960_set_deemph(codec);
++		le89156->playback_fs = params_rate(params);
++		le89156_set_deemph(codec);
+ 	} else {
+ 		for (i = 0; i < ARRAY_SIZE(alc_rates); i++)
+ 			if (alc_rates[i].rate == params_rate(params))
+ 				snd_soc_update_bits(codec,
+-						    WM8960_ADDCTL3, 0x7,
++						    LE89156_ADDCTL3, 0x7,
+ 						    alc_rates[i].val);
+ 	}
+ 
+ 	/* set iface */
+-	snd_soc_write(codec, WM8960_IFACE1, iface);
++	snd_soc_write(codec, LE89156_IFACE1, iface);
+ 	return 0;
+ }
+ 
+-static int wm8960_mute(struct snd_soc_dai *dai, int mute)
++static int le89156_mute(struct snd_soc_dai *dai, int mute)
+ {
+ 	struct snd_soc_codec *codec = dai->codec;
+ 
+ 	if (mute)
+-		snd_soc_update_bits(codec, WM8960_DACCTL1, 0x8, 0x8);
++		snd_soc_update_bits(codec, LE89156_DACCTL1, 0x8, 0x8);
+ 	else
+-		snd_soc_update_bits(codec, WM8960_DACCTL1, 0x8, 0);
++		snd_soc_update_bits(codec, LE89156_DACCTL1, 0x8, 0);
+ 	return 0;
+ }
+ 
+-static int wm8960_set_bias_level_out3(struct snd_soc_codec *codec,
++static int le89156_set_bias_level_out3(struct snd_soc_codec *codec,
+ 				      enum snd_soc_bias_level level)
+ {
+-	struct wm8960_priv *wm8960 = snd_soc_codec_get_drvdata(codec);
++	struct le89156_priv *le89156 = snd_soc_codec_get_drvdata(codec);
+ 
+ 	switch (level) {
+ 	case SND_SOC_BIAS_ON:
+@@ -627,42 +627,42 @@ static int wm8960_set_bias_level_out3(st
+ 
+ 	case SND_SOC_BIAS_PREPARE:
+ 		/* Set VMID to 2x50k */
+-		snd_soc_update_bits(codec, WM8960_POWER1, 0x180, 0x80);
++		snd_soc_update_bits(codec, LE89156_POWER1, 0x180, 0x80);
+ 		break;
+ 
+ 	case SND_SOC_BIAS_STANDBY:
+ 		if (codec->dapm.bias_level == SND_SOC_BIAS_OFF) {
+-			regcache_sync(wm8960->regmap);
++			regcache_sync(le89156->regmap);
+ 
+ 			/* Enable anti-pop features */
+-			snd_soc_write(codec, WM8960_APOP1,
+-				      WM8960_POBCTRL | WM8960_SOFT_ST |
+-				      WM8960_BUFDCOPEN | WM8960_BUFIOEN);
++			snd_soc_write(codec, LE89156_APOP1,
++				      LE89156_POBCTRL | LE89156_SOFT_ST |
++				      LE89156_BUFDCOPEN | LE89156_BUFIOEN);
+ 
+ 			/* Enable & ramp VMID at 2x50k */
+-			snd_soc_update_bits(codec, WM8960_POWER1, 0x80, 0x80);
++			snd_soc_update_bits(codec, LE89156_POWER1, 0x80, 0x80);
+ 			msleep(100);
+ 
+ 			/* Enable VREF */
+-			snd_soc_update_bits(codec, WM8960_POWER1, WM8960_VREF,
+-					    WM8960_VREF);
++			snd_soc_update_bits(codec, LE89156_POWER1, LE89156_VREF,
++					    LE89156_VREF);
+ 
+ 			/* Disable anti-pop features */
+-			snd_soc_write(codec, WM8960_APOP1, WM8960_BUFIOEN);
++			snd_soc_write(codec, LE89156_APOP1, LE89156_BUFIOEN);
+ 		}
+ 
+ 		/* Set VMID to 2x250k */
+-		snd_soc_update_bits(codec, WM8960_POWER1, 0x180, 0x100);
++		snd_soc_update_bits(codec, LE89156_POWER1, 0x180, 0x100);
+ 		break;
+ 
+ 	case SND_SOC_BIAS_OFF:
+ 		/* Enable anti-pop features */
+-		snd_soc_write(codec, WM8960_APOP1,
+-			     WM8960_POBCTRL | WM8960_SOFT_ST |
+-			     WM8960_BUFDCOPEN | WM8960_BUFIOEN);
++		snd_soc_write(codec, LE89156_APOP1,
++			     LE89156_POBCTRL | LE89156_SOFT_ST |
++			     LE89156_BUFDCOPEN | LE89156_BUFIOEN);
+ 
+ 		/* Disable VMID and VREF, let them discharge */
+-		snd_soc_write(codec, WM8960_POWER1, 0);
++		snd_soc_write(codec, LE89156_POWER1, 0);
+ 		msleep(600);
+ 		break;
+ 	}
+@@ -672,10 +672,10 @@ static int wm8960_set_bias_level_out3(st
+ 	return 0;
+ }
+ 
+-static int wm8960_set_bias_level_capless(struct snd_soc_codec *codec,
++static int le89156_set_bias_level_capless(struct snd_soc_codec *codec,
+ 					 enum snd_soc_bias_level level)
+ {
+-	struct wm8960_priv *wm8960 = snd_soc_codec_get_drvdata(codec);
++	struct le89156_priv *le89156 = snd_soc_codec_get_drvdata(codec);
+ 	int reg;
+ 
+ 	switch (level) {
+@@ -686,54 +686,54 @@ static int wm8960_set_bias_level_capless
+ 		switch (codec->dapm.bias_level) {
+ 		case SND_SOC_BIAS_STANDBY:
+ 			/* Enable anti pop mode */
+-			snd_soc_update_bits(codec, WM8960_APOP1,
+-					    WM8960_POBCTRL | WM8960_SOFT_ST |
+-					    WM8960_BUFDCOPEN,
+-					    WM8960_POBCTRL | WM8960_SOFT_ST |
+-					    WM8960_BUFDCOPEN);
++			snd_soc_update_bits(codec, LE89156_APOP1,
++					    LE89156_POBCTRL | LE89156_SOFT_ST |
++					    LE89156_BUFDCOPEN,
++					    LE89156_POBCTRL | LE89156_SOFT_ST |
++					    LE89156_BUFDCOPEN);
+ 
+ 			/* Enable LOUT1, ROUT1 and OUT3 if they're enabled */
+ 			reg = 0;
+-			if (wm8960->lout1 && wm8960->lout1->power)
+-				reg |= WM8960_PWR2_LOUT1;
+-			if (wm8960->rout1 && wm8960->rout1->power)
+-				reg |= WM8960_PWR2_ROUT1;
+-			if (wm8960->out3 && wm8960->out3->power)
+-				reg |= WM8960_PWR2_OUT3;
+-			snd_soc_update_bits(codec, WM8960_POWER2,
+-					    WM8960_PWR2_LOUT1 |
+-					    WM8960_PWR2_ROUT1 |
+-					    WM8960_PWR2_OUT3, reg);
++			if (le89156->lout1 && le89156->lout1->power)
++				reg |= LE89156_PWR2_LOUT1;
++			if (le89156->rout1 && le89156->rout1->power)
++				reg |= LE89156_PWR2_ROUT1;
++			if (le89156->out3 && le89156->out3->power)
++				reg |= LE89156_PWR2_OUT3;
++			snd_soc_update_bits(codec, LE89156_POWER2,
++					    LE89156_PWR2_LOUT1 |
++					    LE89156_PWR2_ROUT1 |
++					    LE89156_PWR2_OUT3, reg);
+ 
+ 			/* Enable VMID at 2*50k */
+-			snd_soc_update_bits(codec, WM8960_POWER1,
+-					    WM8960_VMID_MASK, 0x80);
++			snd_soc_update_bits(codec, LE89156_POWER1,
++					    LE89156_VMID_MASK, 0x80);
+ 
+ 			/* Ramp */
+ 			msleep(100);
+ 
+ 			/* Enable VREF */
+-			snd_soc_update_bits(codec, WM8960_POWER1,
+-					    WM8960_VREF, WM8960_VREF);
++			snd_soc_update_bits(codec, LE89156_POWER1,
++					    LE89156_VREF, LE89156_VREF);
+ 
+ 			msleep(100);
+ 			break;
+ 
+ 		case SND_SOC_BIAS_ON:
+ 			/* Enable anti-pop mode */
+-			snd_soc_update_bits(codec, WM8960_APOP1,
+-					    WM8960_POBCTRL | WM8960_SOFT_ST |
+-					    WM8960_BUFDCOPEN,
+-					    WM8960_POBCTRL | WM8960_SOFT_ST |
+-					    WM8960_BUFDCOPEN);
++			snd_soc_update_bits(codec, LE89156_APOP1,
++					    LE89156_POBCTRL | LE89156_SOFT_ST |
++					    LE89156_BUFDCOPEN,
++					    LE89156_POBCTRL | LE89156_SOFT_ST |
++					    LE89156_BUFDCOPEN);
+ 
+ 			/* Disable VMID and VREF */
+-			snd_soc_update_bits(codec, WM8960_POWER1,
+-					    WM8960_VREF | WM8960_VMID_MASK, 0);
++			snd_soc_update_bits(codec, LE89156_POWER1,
++					    LE89156_VREF | LE89156_VMID_MASK, 0);
+ 			break;
+ 
+ 		case SND_SOC_BIAS_OFF:
+-			regcache_sync(wm8960->regmap);
++			regcache_sync(le89156->regmap);
+ 			break;
+ 		default:
+ 			break;
+@@ -744,16 +744,16 @@ static int wm8960_set_bias_level_capless
+ 		switch (codec->dapm.bias_level) {
+ 		case SND_SOC_BIAS_PREPARE:
+ 			/* Disable HP discharge */
+-			snd_soc_update_bits(codec, WM8960_APOP2,
+-					    WM8960_DISOP | WM8960_DRES_MASK,
++			snd_soc_update_bits(codec, LE89156_APOP2,
++					    LE89156_DISOP | LE89156_DRES_MASK,
+ 					    0);
+ 
+ 			/* Disable anti-pop features */
+-			snd_soc_update_bits(codec, WM8960_APOP1,
+-					    WM8960_POBCTRL | WM8960_SOFT_ST |
+-					    WM8960_BUFDCOPEN,
+-					    WM8960_POBCTRL | WM8960_SOFT_ST |
+-					    WM8960_BUFDCOPEN);
++			snd_soc_update_bits(codec, LE89156_APOP1,
++					    LE89156_POBCTRL | LE89156_SOFT_ST |
++					    LE89156_BUFDCOPEN,
++					    LE89156_POBCTRL | LE89156_SOFT_ST |
++					    LE89156_BUFDCOPEN);
+ 			break;
+ 
+ 		default:
+@@ -787,7 +787,7 @@ static int pll_factors(unsigned int sour
+ 	unsigned long long Kpart;
+ 	unsigned int K, Ndiv, Nmod;
+ 
+-	pr_debug("WM8960 PLL: setting %dHz->%dHz\n", source, target);
++	pr_debug("LE89156 PLL: setting %dHz->%dHz\n", source, target);
+ 
+ 	/* Scale up target to PLL operating frequency */
+ 	target *= 4;
+@@ -801,7 +801,7 @@ static int pll_factors(unsigned int sour
+ 		pll_div->pre_div = 0;
+ 
+ 	if ((Ndiv < 6) || (Ndiv > 12)) {
+-		pr_err("WM8960 PLL: Unsupported N=%d\n", Ndiv);
++		pr_err("LE89156 PLL: Unsupported N=%d\n", Ndiv);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -822,13 +822,13 @@ static int pll_factors(unsigned int sour
+ 
+ 	pll_div->k = K;
+ 
+-	pr_debug("WM8960 PLL: N=%x K=%x pre_div=%d\n",
++	pr_debug("LE89156 PLL: N=%x K=%x pre_div=%d\n",
+ 		 pll_div->n, pll_div->k, pll_div->pre_div);
+ 
+ 	return 0;
+ }
+ 
+-static int wm8960_set_dai_pll(struct snd_soc_dai *codec_dai, int pll_id,
++static int le89156_set_dai_pll(struct snd_soc_dai *codec_dai, int pll_id,
+ 		int source, unsigned int freq_in, unsigned int freq_out)
+ {
+ 	struct snd_soc_codec *codec = codec_dai->codec;
+@@ -844,59 +844,59 @@ static int wm8960_set_dai_pll(struct snd
+ 
+ 	/* Disable the PLL: even if we are changing the frequency the
+ 	 * PLL needs to be disabled while we do so. */
+-	snd_soc_update_bits(codec, WM8960_CLOCK1, 0x1, 0);
+-	snd_soc_update_bits(codec, WM8960_POWER2, 0x1, 0);
++	snd_soc_update_bits(codec, LE89156_CLOCK1, 0x1, 0);
++	snd_soc_update_bits(codec, LE89156_POWER2, 0x1, 0);
+ 
+ 	if (!freq_in || !freq_out)
+ 		return 0;
+ 
+-	reg = snd_soc_read(codec, WM8960_PLL1) & ~0x3f;
++	reg = snd_soc_read(codec, LE89156_PLL1) & ~0x3f;
+ 	reg |= pll_div.pre_div << 4;
+ 	reg |= pll_div.n;
+ 
+ 	if (pll_div.k) {
+ 		reg |= 0x20;
+ 
+-		snd_soc_write(codec, WM8960_PLL2, (pll_div.k >> 16) & 0xff);
+-		snd_soc_write(codec, WM8960_PLL3, (pll_div.k >> 8) & 0xff);
+-		snd_soc_write(codec, WM8960_PLL4, pll_div.k & 0xff);
++		snd_soc_write(codec, LE89156_PLL2, (pll_div.k >> 16) & 0xff);
++		snd_soc_write(codec, LE89156_PLL3, (pll_div.k >> 8) & 0xff);
++		snd_soc_write(codec, LE89156_PLL4, pll_div.k & 0xff);
+ 	}
+-	snd_soc_write(codec, WM8960_PLL1, reg);
++	snd_soc_write(codec, LE89156_PLL1, reg);
+ 
+ 	/* Turn it on */
+-	snd_soc_update_bits(codec, WM8960_POWER2, 0x1, 0x1);
++	snd_soc_update_bits(codec, LE89156_POWER2, 0x1, 0x1);
+ 	msleep(250);
+-	snd_soc_update_bits(codec, WM8960_CLOCK1, 0x1, 0x1);
++	snd_soc_update_bits(codec, LE89156_CLOCK1, 0x1, 0x1);
+ 
+ 	return 0;
+ }
+ 
+-static int wm8960_set_dai_clkdiv(struct snd_soc_dai *codec_dai,
++static int le89156_set_dai_clkdiv(struct snd_soc_dai *codec_dai,
+ 		int div_id, int div)
+ {
+ 	struct snd_soc_codec *codec = codec_dai->codec;
+ 	u16 reg;
+ 
+ 	switch (div_id) {
+-	case WM8960_SYSCLKDIV:
+-		reg = snd_soc_read(codec, WM8960_CLOCK1) & 0x1f9;
+-		snd_soc_write(codec, WM8960_CLOCK1, reg | div);
+-		break;
+-	case WM8960_DACDIV:
+-		reg = snd_soc_read(codec, WM8960_CLOCK1) & 0x1c7;
+-		snd_soc_write(codec, WM8960_CLOCK1, reg | div);
+-		break;
+-	case WM8960_OPCLKDIV:
+-		reg = snd_soc_read(codec, WM8960_PLL1) & 0x03f;
+-		snd_soc_write(codec, WM8960_PLL1, reg | div);
+-		break;
+-	case WM8960_DCLKDIV:
+-		reg = snd_soc_read(codec, WM8960_CLOCK2) & 0x03f;
+-		snd_soc_write(codec, WM8960_CLOCK2, reg | div);
+-		break;
+-	case WM8960_TOCLKSEL:
+-		reg = snd_soc_read(codec, WM8960_ADDCTL1) & 0x1fd;
+-		snd_soc_write(codec, WM8960_ADDCTL1, reg | div);
++	case LE89156_SYSCLKDIV:
++		reg = snd_soc_read(codec, LE89156_CLOCK1) & 0x1f9;
++		snd_soc_write(codec, LE89156_CLOCK1, reg | div);
++		break;
++	case LE89156_DACDIV:
++		reg = snd_soc_read(codec, LE89156_CLOCK1) & 0x1c7;
++		snd_soc_write(codec, LE89156_CLOCK1, reg | div);
++		break;
++	case LE89156_OPCLKDIV:
++		reg = snd_soc_read(codec, LE89156_PLL1) & 0x03f;
++		snd_soc_write(codec, LE89156_PLL1, reg | div);
++		break;
++	case LE89156_DCLKDIV:
++		reg = snd_soc_read(codec, LE89156_CLOCK2) & 0x03f;
++		snd_soc_write(codec, LE89156_CLOCK2, reg | div);
++		break;
++	case LE89156_TOCLKSEL:
++		reg = snd_soc_read(codec, LE89156_ADDCTL1) & 0x1fd;
++		snd_soc_write(codec, LE89156_ADDCTL1, reg | div);
+ 		break;
+ 	default:
+ 		return -EINVAL;
+@@ -905,75 +905,75 @@ static int wm8960_set_dai_clkdiv(struct
+ 	return 0;
+ }
+ 
+-static int wm8960_set_bias_level(struct snd_soc_codec *codec,
++static int le89156_set_bias_level(struct snd_soc_codec *codec,
+ 				 enum snd_soc_bias_level level)
+ {
+-	struct wm8960_priv *wm8960 = snd_soc_codec_get_drvdata(codec);
++	struct le89156_priv *le89156 = snd_soc_codec_get_drvdata(codec);
+ 
+-	return wm8960->set_bias_level(codec, level);
++	return le89156->set_bias_level(codec, level);
+ }
+ 
+-#define WM8960_RATES SNDRV_PCM_RATE_8000_48000
++#define LE89156_RATES SNDRV_PCM_RATE_8000_48000
+ 
+-#define WM8960_FORMATS \
++#define LE89156_FORMATS \
+ 	(SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S20_3LE | \
+ 	SNDRV_PCM_FMTBIT_S24_LE)
+ 
+-static const struct snd_soc_dai_ops wm8960_dai_ops = {
+-	.hw_params = wm8960_hw_params,
+-	.digital_mute = wm8960_mute,
+-	.set_fmt = wm8960_set_dai_fmt,
+-	.set_clkdiv = wm8960_set_dai_clkdiv,
+-	.set_pll = wm8960_set_dai_pll,
++static const struct snd_soc_dai_ops le89156_dai_ops = {
++	.hw_params = le89156_hw_params,
++	.digital_mute = le89156_mute,
++	.set_fmt = le89156_set_dai_fmt,
++	.set_clkdiv = le89156_set_dai_clkdiv,
++	.set_pll = le89156_set_dai_pll,
+ };
+ 
+-static struct snd_soc_dai_driver wm8960_dai = {
+-	.name = "wm8960-hifi",
++static struct snd_soc_dai_driver le89156_dai = {
++	.name = "le89156-hifi",
+ 	.playback = {
+ 		.stream_name = "Playback",
+ 		.channels_min = 1,
+ 		.channels_max = 2,
+-		.rates = WM8960_RATES,
+-		.formats = WM8960_FORMATS,},
++		.rates = LE89156_RATES,
++		.formats = LE89156_FORMATS,},
+ 	.capture = {
+ 		.stream_name = "Capture",
+ 		.channels_min = 1,
+ 		.channels_max = 2,
+-		.rates = WM8960_RATES,
+-		.formats = WM8960_FORMATS,},
+-	.ops = &wm8960_dai_ops,
++		.rates = LE89156_RATES,
++		.formats = LE89156_FORMATS,},
++	.ops = &le89156_dai_ops,
+ 	.symmetric_rates = 1,
+ };
+ 
+-static int wm8960_suspend(struct snd_soc_codec *codec)
++static int le89156_suspend(struct snd_soc_codec *codec)
+ {
+-	struct wm8960_priv *wm8960 = snd_soc_codec_get_drvdata(codec);
++	struct le89156_priv *le89156 = snd_soc_codec_get_drvdata(codec);
+ 
+-	wm8960->set_bias_level(codec, SND_SOC_BIAS_OFF);
++	le89156->set_bias_level(codec, SND_SOC_BIAS_OFF);
+ 	return 0;
+ }
+ 
+-static int wm8960_resume(struct snd_soc_codec *codec)
++static int le89156_resume(struct snd_soc_codec *codec)
+ {
+-	struct wm8960_priv *wm8960 = snd_soc_codec_get_drvdata(codec);
++	struct le89156_priv *le89156 = snd_soc_codec_get_drvdata(codec);
+ 
+-	wm8960->set_bias_level(codec, SND_SOC_BIAS_STANDBY);
++	le89156->set_bias_level(codec, SND_SOC_BIAS_STANDBY);
+ 	return 0;
+ }
+ 
+-static int wm8960_probe(struct snd_soc_codec *codec)
++static int le89156_probe(struct snd_soc_codec *codec)
+ {
+-	struct wm8960_priv *wm8960 = snd_soc_codec_get_drvdata(codec);
+-	struct wm8960_data *pdata = dev_get_platdata(codec->dev);
++	struct le89156_priv *le89156 = snd_soc_codec_get_drvdata(codec);
++	struct le89156_data *pdata = dev_get_platdata(codec->dev);
+ 	int ret;
+ 
+-	wm8960->set_bias_level = wm8960_set_bias_level_out3;
++	le89156->set_bias_level = le89156_set_bias_level_out3;
+ 
+ 	if (!pdata) {
+ 		dev_warn(codec->dev, "No platform data supplied\n");
+ 	} else {
+ 		if (pdata->capless)
+-			wm8960->set_bias_level = wm8960_set_bias_level_capless;
++			le89156->set_bias_level = le89156_set_bias_level_capless;
+ 	}
+ 
+ 	ret = snd_soc_codec_set_cache_io(codec, 7, 9, SND_SOC_REGMAP);
+@@ -982,80 +982,80 @@ static int wm8960_probe(struct snd_soc_c
+ 		return ret;
+ 	}
+ 
+-	ret = wm8960_reset(codec);
++	ret = le89156_reset(codec);
+ 	if (ret < 0) {
+ 		dev_err(codec->dev, "Failed to issue reset\n");
+ 		return ret;
+ 	}
+ 
+-	wm8960->set_bias_level(codec, SND_SOC_BIAS_STANDBY);
++	le89156->set_bias_level(codec, SND_SOC_BIAS_STANDBY);
+ 
+ 	/* Latch the update bits */
+-	snd_soc_update_bits(codec, WM8960_LINVOL, 0x100, 0x100);
+-	snd_soc_update_bits(codec, WM8960_RINVOL, 0x100, 0x100);
+-	snd_soc_update_bits(codec, WM8960_LADC, 0x100, 0x100);
+-	snd_soc_update_bits(codec, WM8960_RADC, 0x100, 0x100);
+-	snd_soc_update_bits(codec, WM8960_LDAC, 0x100, 0x100);
+-	snd_soc_update_bits(codec, WM8960_RDAC, 0x100, 0x100);
+-	snd_soc_update_bits(codec, WM8960_LOUT1, 0x100, 0x100);
+-	snd_soc_update_bits(codec, WM8960_ROUT1, 0x100, 0x100);
+-	snd_soc_update_bits(codec, WM8960_LOUT2, 0x100, 0x100);
+-	snd_soc_update_bits(codec, WM8960_ROUT2, 0x100, 0x100);
+-
+-	snd_soc_add_codec_controls(codec, wm8960_snd_controls,
+-				     ARRAY_SIZE(wm8960_snd_controls));
+-	wm8960_add_widgets(codec);
++	snd_soc_update_bits(codec, LE89156_LINVOL, 0x100, 0x100);
++	snd_soc_update_bits(codec, LE89156_RINVOL, 0x100, 0x100);
++	snd_soc_update_bits(codec, LE89156_LADC, 0x100, 0x100);
++	snd_soc_update_bits(codec, LE89156_RADC, 0x100, 0x100);
++	snd_soc_update_bits(codec, LE89156_LDAC, 0x100, 0x100);
++	snd_soc_update_bits(codec, LE89156_RDAC, 0x100, 0x100);
++	snd_soc_update_bits(codec, LE89156_LOUT1, 0x100, 0x100);
++	snd_soc_update_bits(codec, LE89156_ROUT1, 0x100, 0x100);
++	snd_soc_update_bits(codec, LE89156_LOUT2, 0x100, 0x100);
++	snd_soc_update_bits(codec, LE89156_ROUT2, 0x100, 0x100);
++
++	snd_soc_add_codec_controls(codec, le89156_snd_controls,
++				     ARRAY_SIZE(le89156_snd_controls));
++	le89156_add_widgets(codec);
+ 
+ 	return 0;
+ }
+ 
+ /* power down chip */
+-static int wm8960_remove(struct snd_soc_codec *codec)
++static int le89156_remove(struct snd_soc_codec *codec)
+ {
+-	struct wm8960_priv *wm8960 = snd_soc_codec_get_drvdata(codec);
++	struct le89156_priv *le89156 = snd_soc_codec_get_drvdata(codec);
+ 
+-	wm8960->set_bias_level(codec, SND_SOC_BIAS_OFF);
++	le89156->set_bias_level(codec, SND_SOC_BIAS_OFF);
+ 	return 0;
+ }
+ 
+-static struct snd_soc_codec_driver soc_codec_dev_wm8960 = {
+-	.probe =	wm8960_probe,
+-	.remove =	wm8960_remove,
+-	.suspend =	wm8960_suspend,
+-	.resume =	wm8960_resume,
+-	.set_bias_level = wm8960_set_bias_level,
++static struct snd_soc_codec_driver soc_codec_dev_le89156 = {
++	.probe =	le89156_probe,
++	.remove =	le89156_remove,
++	.suspend =	le89156_suspend,
++	.resume =	le89156_resume,
++	.set_bias_level = le89156_set_bias_level,
+ };
+ 
+-static const struct regmap_config wm8960_regmap = {
++static const struct regmap_config le89156_regmap = {
+ 	.reg_bits = 7,
+ 	.val_bits = 9,
+-	.max_register = WM8960_PLL4,
++	.max_register = LE89156_PLL4,
+ 
+-	.reg_defaults = wm8960_reg_defaults,
+-	.num_reg_defaults = ARRAY_SIZE(wm8960_reg_defaults),
++	.reg_defaults = le89156_reg_defaults,
++	.num_reg_defaults = ARRAY_SIZE(le89156_reg_defaults),
+ 	.cache_type = REGCACHE_RBTREE,
+ 
+-	.volatile_reg = wm8960_volatile,
++	.volatile_reg = le89156_volatile,
+ };
+ 
+-static int wm8960_i2c_probe(struct i2c_client *i2c,
++static int le89156_i2c_probe(struct i2c_client *i2c,
+ 			    const struct i2c_device_id *id)
+ {
+-	struct wm8960_data *pdata = dev_get_platdata(&i2c->dev);
+-	struct wm8960_priv *wm8960;
++	struct le89156_data *pdata = dev_get_platdata(&i2c->dev);
++	struct le89156_priv *le89156;
+ 	int ret;
+ 
+-	wm8960 = devm_kzalloc(&i2c->dev, sizeof(struct wm8960_priv),
++	le89156 = devm_kzalloc(&i2c->dev, sizeof(struct le89156_priv),
+ 			      GFP_KERNEL);
+-	if (wm8960 == NULL)
++	if (le89156 == NULL)
+ 		return -ENOMEM;
+ 
+-	wm8960->regmap = devm_regmap_init_i2c(i2c, &wm8960_regmap);
+-	if (IS_ERR(wm8960->regmap))
+-		return PTR_ERR(wm8960->regmap);
++	le89156->regmap = devm_regmap_init_i2c(i2c, &le89156_regmap);
++	if (IS_ERR(le89156->regmap))
++		return PTR_ERR(le89156->regmap);
+ 
+ 	if (pdata && pdata->shared_lrclk) {
+-		ret = regmap_update_bits(wm8960->regmap, WM8960_ADDCTL2,
++		ret = regmap_update_bits(le89156->regmap, LE89156_ADDCTL2,
+ 					 0x4, 0x4);
+ 		if (ret != 0) {
+ 			dev_err(&i2c->dev, "Failed to enable LRCM: %d\n",
+@@ -1064,38 +1064,38 @@ static int wm8960_i2c_probe(struct i2c_c
+ 		}
+ 	}
+ 
+-	i2c_set_clientdata(i2c, wm8960);
++	i2c_set_clientdata(i2c, le89156);
+ 
+ 	ret = snd_soc_register_codec(&i2c->dev,
+-			&soc_codec_dev_wm8960, &wm8960_dai, 1);
++			&soc_codec_dev_le89156, &le89156_dai, 1);
+ 
+ 	return ret;
+ }
+ 
+-static int wm8960_i2c_remove(struct i2c_client *client)
++static int le89156_i2c_remove(struct i2c_client *client)
+ {
+ 	snd_soc_unregister_codec(&client->dev);
+ 	return 0;
+ }
+ 
+-static const struct i2c_device_id wm8960_i2c_id[] = {
+-	{ "wm8960", 0 },
++static const struct i2c_device_id le89156_i2c_id[] = {
++	{ "le89156", 0 },
+ 	{ }
+ };
+-MODULE_DEVICE_TABLE(i2c, wm8960_i2c_id);
++MODULE_DEVICE_TABLE(i2c, le89156_i2c_id);
+ 
+-static struct i2c_driver wm8960_i2c_driver = {
++static struct i2c_driver le89156_i2c_driver = {
+ 	.driver = {
+-		.name = "wm8960",
++		.name = "le89156",
+ 		.owner = THIS_MODULE,
+ 	},
+-	.probe =    wm8960_i2c_probe,
+-	.remove =   wm8960_i2c_remove,
+-	.id_table = wm8960_i2c_id,
++	.probe =    le89156_i2c_probe,
++	.remove =   le89156_i2c_remove,
++	.id_table = le89156_i2c_id,
+ };
+ 
+-module_i2c_driver(wm8960_i2c_driver);
++module_i2c_driver(le89156_i2c_driver);
+ 
+-MODULE_DESCRIPTION("ASoC WM8960 driver");
++MODULE_DESCRIPTION("ASoC LE89156 driver");
+ MODULE_AUTHOR("Liam Girdwood");
+ MODULE_LICENSE("GPL");
+--- a/sound/soc/codecs/le89156.h
++++ b/sound/soc/codecs/le89156.h
+@@ -1,113 +1,113 @@
+ /*
+- * wm8960.h  --  WM8960 Soc Audio driver
++ * le89156.h  --  LE89156 Soc Audio driver
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 as
+  * published by the Free Software Foundation.
+  */
+ 
+-#ifndef _WM8960_H
+-#define _WM8960_H
++#ifndef _LE89156_H
++#define _LE89156_H
+ 
+-/* WM8960 register space */
++/* LE89156 register space */
+ 
+ 
+-#define WM8960_CACHEREGNUM 	56
++#define LE89156_CACHEREGNUM 	56
+ 
+-#define WM8960_LINVOL		0x0
+-#define WM8960_RINVOL		0x1
+-#define WM8960_LOUT1		0x2
+-#define WM8960_ROUT1		0x3
+-#define WM8960_CLOCK1		0x4
+-#define WM8960_DACCTL1		0x5
+-#define WM8960_DACCTL2		0x6
+-#define WM8960_IFACE1		0x7
+-#define WM8960_CLOCK2		0x8
+-#define WM8960_IFACE2		0x9
+-#define WM8960_LDAC		0xa
+-#define WM8960_RDAC		0xb
+-
+-#define WM8960_RESET		0xf
+-#define WM8960_3D		0x10
+-#define WM8960_ALC1		0x11
+-#define WM8960_ALC2		0x12
+-#define WM8960_ALC3		0x13
+-#define WM8960_NOISEG		0x14
+-#define WM8960_LADC		0x15
+-#define WM8960_RADC		0x16
+-#define WM8960_ADDCTL1		0x17
+-#define WM8960_ADDCTL2		0x18
+-#define WM8960_POWER1		0x19
+-#define WM8960_POWER2		0x1a
+-#define WM8960_ADDCTL3		0x1b
+-#define WM8960_APOP1		0x1c
+-#define WM8960_APOP2		0x1d
+-
+-#define WM8960_LINPATH		0x20
+-#define WM8960_RINPATH		0x21
+-#define WM8960_LOUTMIX		0x22
+-
+-#define WM8960_ROUTMIX		0x25
+-#define WM8960_MONOMIX1		0x26
+-#define WM8960_MONOMIX2		0x27
+-#define WM8960_LOUT2		0x28
+-#define WM8960_ROUT2		0x29
+-#define WM8960_MONO		0x2a
+-#define WM8960_INBMIX1		0x2b
+-#define WM8960_INBMIX2		0x2c
+-#define WM8960_BYPASS1		0x2d
+-#define WM8960_BYPASS2		0x2e
+-#define WM8960_POWER3		0x2f
+-#define WM8960_ADDCTL4		0x30
+-#define WM8960_CLASSD1		0x31
+-
+-#define WM8960_CLASSD3		0x33
+-#define WM8960_PLL1		0x34
+-#define WM8960_PLL2		0x35
+-#define WM8960_PLL3		0x36
+-#define WM8960_PLL4		0x37
++#define LE89156_LINVOL		0x0
++#define LE89156_RINVOL		0x1
++#define LE89156_LOUT1		0x2
++#define LE89156_ROUT1		0x3
++#define LE89156_CLOCK1		0x4
++#define LE89156_DACCTL1		0x5
++#define LE89156_DACCTL2		0x6
++#define LE89156_IFACE1		0x7
++#define LE89156_CLOCK2		0x8
++#define LE89156_IFACE2		0x9
++#define LE89156_LDAC		0xa
++#define LE89156_RDAC		0xb
++
++#define LE89156_RESET		0xf
++#define LE89156_3D		0x10
++#define LE89156_ALC1		0x11
++#define LE89156_ALC2		0x12
++#define LE89156_ALC3		0x13
++#define LE89156_NOISEG		0x14
++#define LE89156_LADC		0x15
++#define LE89156_RADC		0x16
++#define LE89156_ADDCTL1		0x17
++#define LE89156_ADDCTL2		0x18
++#define LE89156_POWER1		0x19
++#define LE89156_POWER2		0x1a
++#define LE89156_ADDCTL3		0x1b
++#define LE89156_APOP1		0x1c
++#define LE89156_APOP2		0x1d
++
++#define LE89156_LINPATH		0x20
++#define LE89156_RINPATH		0x21
++#define LE89156_LOUTMIX		0x22
++
++#define LE89156_ROUTMIX		0x25
++#define LE89156_MONOMIX1		0x26
++#define LE89156_MONOMIX2		0x27
++#define LE89156_LOUT2		0x28
++#define LE89156_ROUT2		0x29
++#define LE89156_MONO		0x2a
++#define LE89156_INBMIX1		0x2b
++#define LE89156_INBMIX2		0x2c
++#define LE89156_BYPASS1		0x2d
++#define LE89156_BYPASS2		0x2e
++#define LE89156_POWER3		0x2f
++#define LE89156_ADDCTL4		0x30
++#define LE89156_CLASSD1		0x31
++
++#define LE89156_CLASSD3		0x33
++#define LE89156_PLL1		0x34
++#define LE89156_PLL2		0x35
++#define LE89156_PLL3		0x36
++#define LE89156_PLL4		0x37
+ 
+ 
+ /*
+- * WM8960 Clock dividers
++ * LE89156 Clock dividers
+  */
+-#define WM8960_SYSCLKDIV 		0
+-#define WM8960_DACDIV			1
+-#define WM8960_OPCLKDIV			2
+-#define WM8960_DCLKDIV			3
+-#define WM8960_TOCLKSEL			4
+-
+-#define WM8960_SYSCLK_DIV_1		(0 << 1)
+-#define WM8960_SYSCLK_DIV_2		(2 << 1)
+-
+-#define WM8960_SYSCLK_MCLK		(0 << 0)
+-#define WM8960_SYSCLK_PLL		(1 << 0)
+-
+-#define WM8960_DAC_DIV_1		(0 << 3)
+-#define WM8960_DAC_DIV_1_5		(1 << 3)
+-#define WM8960_DAC_DIV_2		(2 << 3)
+-#define WM8960_DAC_DIV_3		(3 << 3)
+-#define WM8960_DAC_DIV_4		(4 << 3)
+-#define WM8960_DAC_DIV_5_5		(5 << 3)
+-#define WM8960_DAC_DIV_6		(6 << 3)
+-
+-#define WM8960_DCLK_DIV_1_5		(0 << 6)
+-#define WM8960_DCLK_DIV_2		(1 << 6)
+-#define WM8960_DCLK_DIV_3		(2 << 6)
+-#define WM8960_DCLK_DIV_4		(3 << 6)
+-#define WM8960_DCLK_DIV_6		(4 << 6)
+-#define WM8960_DCLK_DIV_8		(5 << 6)
+-#define WM8960_DCLK_DIV_12		(6 << 6)
+-#define WM8960_DCLK_DIV_16		(7 << 6)
+-
+-#define WM8960_TOCLK_F19		(0 << 1)
+-#define WM8960_TOCLK_F21		(1 << 1)
+-
+-#define WM8960_OPCLK_DIV_1		(0 << 0)
+-#define WM8960_OPCLK_DIV_2		(1 << 0)
+-#define WM8960_OPCLK_DIV_3		(2 << 0)
+-#define WM8960_OPCLK_DIV_4		(3 << 0)
+-#define WM8960_OPCLK_DIV_5_5		(4 << 0)
+-#define WM8960_OPCLK_DIV_6		(5 << 0)
++#define LE89156_SYSCLKDIV 		0
++#define LE89156_DACDIV			1
++#define LE89156_OPCLKDIV			2
++#define LE89156_DCLKDIV			3
++#define LE89156_TOCLKSEL			4
++
++#define LE89156_SYSCLK_DIV_1		(0 << 1)
++#define LE89156_SYSCLK_DIV_2		(2 << 1)
++
++#define LE89156_SYSCLK_MCLK		(0 << 0)
++#define LE89156_SYSCLK_PLL		(1 << 0)
++
++#define LE89156_DAC_DIV_1		(0 << 3)
++#define LE89156_DAC_DIV_1_5		(1 << 3)
++#define LE89156_DAC_DIV_2		(2 << 3)
++#define LE89156_DAC_DIV_3		(3 << 3)
++#define LE89156_DAC_DIV_4		(4 << 3)
++#define LE89156_DAC_DIV_5_5		(5 << 3)
++#define LE89156_DAC_DIV_6		(6 << 3)
++
++#define LE89156_DCLK_DIV_1_5		(0 << 6)
++#define LE89156_DCLK_DIV_2		(1 << 6)
++#define LE89156_DCLK_DIV_3		(2 << 6)
++#define LE89156_DCLK_DIV_4		(3 << 6)
++#define LE89156_DCLK_DIV_6		(4 << 6)
++#define LE89156_DCLK_DIV_8		(5 << 6)
++#define LE89156_DCLK_DIV_12		(6 << 6)
++#define LE89156_DCLK_DIV_16		(7 << 6)
++
++#define LE89156_TOCLK_F19		(0 << 1)
++#define LE89156_TOCLK_F21		(1 << 1)
++
++#define LE89156_OPCLK_DIV_1		(0 << 0)
++#define LE89156_OPCLK_DIV_2		(1 << 0)
++#define LE89156_OPCLK_DIV_3		(2 << 0)
++#define LE89156_OPCLK_DIV_4		(3 << 0)
++#define LE89156_OPCLK_DIV_5_5		(4 << 0)
++#define LE89156_OPCLK_DIV_6		(5 << 0)
+ 
+ #endif
