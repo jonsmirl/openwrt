@@ -60,6 +60,7 @@ preinit_set_mac_address() {
 	all5002 |\
 	all5003 |\
 	awm002-evb |\
+	zarlink |\
 	carambola |\
 	dir-615-h1 |\
 	fonera20n |\
