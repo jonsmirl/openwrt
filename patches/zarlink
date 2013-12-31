@@ -1,5 +1,5 @@
 Bottom: bc0bd94ba41e16394fd53c4d11863fa354b9afa3
-Top:    7434181e1760631d2de50fd4381ffd51b6fc8c38
+Top:    d01783e69f8ae9c8a1e0dd7e92f6fbb422ff9ca4
 Author: Jon Smirl <jonsmirl@gmail.com>
 Date:   2013-12-31 17:21:45 -0500
 
@@ -9,10 +9,10 @@ Initial framework for Zarlink
 ---
 
 diff --git a/.gitignore b/.gitignore
-index 70a454c..1806af2 100644
+index 70a454c..0392deb 100644
 --- a/.gitignore
 +++ b/.gitignore
-@@ -21,4 +21,6 @@
+@@ -21,4 +21,7 @@
  .#*
  *#
  .emacs.desktop*
@@ -21,6 +21,7 @@ index 70a454c..1806af2 100644
 +TAGS*~
 +Packages
 +Packages.gz
++patches*
 diff --git a/target/linux/ramips/dts/ZARLINK.dts b/target/linux/ramips/dts/ZARLINK.dts
 new file mode 100644
 index 0000000..d38ed07
