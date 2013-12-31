@@ -280,3 +280,41 @@ define KernelPackage/pcspkr/description
 endef
 
 $(eval $(call KernelPackage,pcspkr))
+
+define KernelPackage/sound-soc-rt5350
+  TITLE:=RT5350 SoC support
+  KCONFIG:=\
+	CONFIG_SND_SOC_RT5350_PCM
+  FILES:= \
+	$(LINUX_DIR)/sound/soc/fsl/snd-soc-rt5350-pcm.ko
+  AUTOLOAD:=$(call AutoLoad,56,snd-soc-rt5350-pcm)
+  DEPENDS:=@TARGET_rampips +kmod-sound-soc-core
+  $(call AddDepends/sound)
+endef
+
+define KernelPackage/sound-soc-rt5350/description
+ Support for RT5350 Platform sound (pcm)
+endef
+
+$(eval $(call KernelPackage,sound-soc-rt5350))
+
+
+define KernelPackage/sound-soc-rt5350-le89156
+  TITLE:=RT5350 SoC support for Zarlink LE89156
+  KCONFIG:=SND_RT5350_SOC_LE89156
+  FILES:=\
+	$(LINUX_DIR)/sound/soc/codecs/snd-soc-le89156.ko \
+	$(LINUX_DIR)/sound/soc/codecs/snd-soc-rt5350-le89156.ko
+  AUTOLOAD:=$(call AutoLoad,57,snd-soc-rt5350-le89156)
+  DEPENDS:=@TARGET_ramips +kmod-snd-soc-rt5350
+  $(call AddDepends/sound)
+endef
+
+define KernelPackage/sound-soc-rt5350-le89156/description
+ Support for RT5350 Platform sound Zarlink LE89156 codec
+endef
+
+$(eval $(call KernelPackage,sound-soc-rt5350-le89156))
+
+
+
