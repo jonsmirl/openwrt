@@ -1,0 +1,97 @@
+/dts-v1/;
+
+/include/ "rt5350.dtsi"
+
+/ {
+	compatible = "ZARLINK", "ralink,rt5350-soc";
+	model = "ReliableTV Zarlink";
+
+	palmbus@10000000 {
+		spi@b00 {
+			status = "okay";
+			m25p80@0 {
+				compatible = "mx25l6405d";
+				linux,modalias = "m25p80", "mx25l6405d";
+
+				#address-cells = <1>;
+				#size-cells = <1>;
+				reg = <0>;
+				spi-max-frequency = <10000000>;
+
+				partition@0 {
+					label = "u-boot";
+					reg = <0x0 0x30000>;
+					read-only;
+				};
+
+				partition@30000 {
+					label = "u-boot-env";
+					reg = <0x30000 0x10000>;
+					read-only;
+				};
+
+				factory: partition@40000 {
+					label = "factory";
+					reg = <0x40000 0x10000>;
+					read-only;
+				};
+
+				partition@50000 {
+					label = "firmware";
+					reg = <0x50000 0x1fb0000>;
+				};
+			};
+
+			codec: le89156@1 {
+				compatible = "zarlink,le89156";
+				reg = <1>;
+				spi-max-frequency = <10000000>;
+			};
+		};
+		pcm: pcm@2000 {
+			status = "okay";
+		};
+
+		gdma@2800 {
+			status = "okay";
+		};
+	};
+
+	sound {
+		compatible = "ralink,le89156-audio";
+		controller = <&pcm>;
+		audio-codec = <&codec>;
+		audio-routing =
+			"MIC_IN", "Mic Jack",
+			"Mic Jack", "Mic Bias",
+			"Headphone Jack", "HP_OUT";
+		mux-int-port = <1>;
+		mux-ext-port = <4>;
+	};
+
+
+	pinctrl {
+		state_default: pinctrl0 {
+			gpio {
+				ralink,group = "i2c", "jtag";
+				ralink,function = "gpio";
+			};
+			uartf {
+				ralink,group = "uartf";
+				ralink,function = "pcm gpio";
+			};
+		};
+	};
+
+	esw@10110000 {
+		ralink,portmap = <0x3f>;
+	};
+
+	ehci@101c0000 {
+		status = "okay";
+	};
+
+	ohci@101c1000 {
+		status = "okay";
+	};
+};
