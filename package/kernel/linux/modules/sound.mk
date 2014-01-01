@@ -288,7 +288,7 @@ define KernelPackage/sound-soc-rt5350
   FILES:= \
 	$(LINUX_DIR)/sound/soc/ralink/snd-soc-rt5350-pcm.ko
   AUTOLOAD:=$(call AutoLoad,56,snd-soc-rt5350-pcm)
-  DEPENDS:=@TARGET_rampips +kmod-sound-soc-core
+  DEPENDS:=@TARGET_ramips +kmod-sound-soc-core
   $(call AddDepends/sound)
 endef
 
