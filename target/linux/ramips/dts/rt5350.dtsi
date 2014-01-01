@@ -212,7 +212,7 @@
 
 			interrupt-parent = <&intc>;
 			interrupts = <4>;
-		}
+		};
 
 		gdma@2800 {
 			compatible = "ralink,rt5350-gdma", "ralink,rt2880-gdma";
@@ -220,7 +220,7 @@
 
 			interrupt-parent = <&intc>;
 			interrupts = <7>;
-		}
+		};
 	};
 
 	pinctrl {
