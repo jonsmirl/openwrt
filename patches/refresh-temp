@@ -1,0 +1,21 @@
+Bottom: c2d06a1e4fe5f647305190858ac6ff310dc1edd5
+Top:    33ae8975b9587e757171174881b7f08942aacd6b
+Author: Jon Smirl <jonsmirl@gmail.com>
+Date:   2013-12-31 23:57:43 -0500
+
+Refresh of zarlink
+
+---
+
+diff --git a/package/kernel/linux/modules/sound.mk b/package/kernel/linux/modules/sound.mk
+index 81e28d1..7dc59d9 100644
+--- a/package/kernel/linux/modules/sound.mk
++++ b/package/kernel/linux/modules/sound.mk
+@@ -288,7 +288,7 @@ define KernelPackage/sound-soc-rt5350
+   FILES:= \
+ 	$(LINUX_DIR)/sound/soc/ralink/snd-soc-rt5350-pcm.ko
+   AUTOLOAD:=$(call AutoLoad,56,snd-soc-rt5350-pcm)
+-  DEPENDS:=@TARGET_rampips +kmod-sound-soc-core
++  DEPENDS:=@TARGET_ramips +kmod-sound-soc-core
+   $(call AddDepends/sound)
+ endef
