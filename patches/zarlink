@@ -1,5 +1,5 @@
 Bottom: bc0bd94ba41e16394fd53c4d11863fa354b9afa3
-Top:    90262b25e58a9c80e1b89ff7ef39e7531f40b961
+Top:    12be089eab1fc3efb16038d1df1d560b204eaf44
 Author: Jon Smirl <jonsmirl@gmail.com>
 Date:   2013-12-31 17:21:45 -0500
 
@@ -22,6 +22,52 @@ index 70a454c..0392deb 100644
 +Packages
 +Packages.gz
 +patches*
+diff --git a/package/kernel/linux/modules/sound.mk b/package/kernel/linux/modules/sound.mk
+index 777d274..2bc3ed1 100644
+--- a/package/kernel/linux/modules/sound.mk
++++ b/package/kernel/linux/modules/sound.mk
+@@ -280,3 +280,41 @@ define KernelPackage/pcspkr/description
+ endef
+ 
+ $(eval $(call KernelPackage,pcspkr))
++
++define KernelPackage/sound-soc-rt5350
++  TITLE:=RT5350 SoC support
++  KCONFIG:=\
++	CONFIG_SND_SOC_RT5350_PCM
++  FILES:= \
++	$(LINUX_DIR)/sound/soc/fsl/snd-soc-rt5350-pcm.ko
++  AUTOLOAD:=$(call AutoLoad,56,snd-soc-rt5350-pcm)
++  DEPENDS:=@TARGET_rt5350 +kmod-sound-soc-core
++  $(call AddDepends/sound)
++endef
++
++define KernelPackage/sound-soc-rt5350/description
++ Support for RT5350 Platform sound (pcm)
++endef
++
++$(eval $(call KernelPackage,sound-soc-rt5350))
++
++
++define KernelPackage/sound-soc-rt5350-le89156
++  TITLE:=RT5350 SoC support for Zarlink LE89156
++  KCONFIG:=SND_RT5350_SOC_LE89156
++  FILES:=\
++	$(LINUX_DIR)/sound/soc/codecs/snd-soc-le89156.ko \
++	$(LINUX_DIR)/sound/soc/codecs/snd-soc-rt5350-le89156.ko
++  AUTOLOAD:=$(call AutoLoad,57,snd-soc-rt5350-le89156)
++  DEPENDS:=@TARGET_rt5350 +kmod-snd-soc-rt5350
++  $(call AddDepends/sound)
++endef
++
++define KernelPackage/sound-soc-rt5350-le89156/description
++ Support for RT5350 Platform sound Zarlink LE89156 codec
++endef
++
++$(eval $(call KernelPackage,sound-soc-rt5350-le89156))
++
++
++
 diff --git a/target/linux/ramips/dts/ZARLINK.dts b/target/linux/ramips/dts/ZARLINK.dts
 new file mode 100644
 index 0000000..0e56303
@@ -199,10 +245,10 @@ index 0000000..3544f6b
 + 		dev_err(&pdev->dev, "no IRQ resource found\n");
 diff --git a/target/linux/ramips/patches-3.10/0320-rt5350-zarlink.patch b/target/linux/ramips/patches-3.10/0320-rt5350-zarlink.patch
 new file mode 100644
-index 0000000..3cc7882
+index 0000000..ef6b33e
 --- /dev/null
 +++ b/target/linux/ramips/patches-3.10/0320-rt5350-zarlink.patch
-@@ -0,0 +1,1858 @@
+@@ -0,0 +1,1868 @@
 +--- /dev/null
 ++++ b/sound/soc/codecs/le89156.c
 +@@ -0,0 +1,1101 @@
@@ -2061,6 +2107,16 @@ index 0000000..3cc7882
 ++MODULE_DESCRIPTION("Ralink RT5350 SoC PCM driver");
 ++MODULE_LICENSE("GPL");
 ++MODULE_ALIAS("platform:rt5350-pcm");
++--- a/sound/soc/codecs/Makefile
+++++ b/sound/soc/codecs/Makefile
++@@ -32,6 +32,7 @@ snd-soc-dmic-objs := dmic.o
++ snd-soc-isabelle-objs := isabelle.o
++ snd-soc-jz4740-codec-objs := jz4740.o
++ snd-soc-l3-objs := l3.o
+++snd-soc-le89156-objs := le89156.o
++ snd-soc-lm4857-objs := lm4857.o
++ snd-soc-lm49453-objs := lm49453.o
++ snd-soc-max9768-objs := max9768.o
 diff --git a/target/linux/ramips/rt305x/profiles/asiarf.mk b/target/linux/ramips/rt305x/profiles/asiarf.mk
 index 8b1f757..94dc2f5 100644
 --- a/target/linux/ramips/rt305x/profiles/asiarf.mk
