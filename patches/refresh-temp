@@ -1,0 +1,161 @@
+Bottom: 5350a91559bb45c185d8e8c9387ba6969135df44
+Top:    fc65b77cc3cba8c6d4a21a5c970de9ff048ceafd
+Author: Jon Smirl <jonsmirl@gmail.com>
+Date:   2014-01-01 14:35:27 -0500
+
+Refresh of zarlink
+
+---
+
+diff --git a/package/kernel/linux/modules/sound.mk b/package/kernel/linux/modules/sound.mk
+index 93653b6..f3e5673 100644
+--- a/package/kernel/linux/modules/sound.mk
++++ b/package/kernel/linux/modules/sound.mk
+@@ -163,7 +163,7 @@ $(eval $(call KernelPackage,sound-cs5535audio))
+ 
+ define KernelPackage/sound-soc-core
+   TITLE:=SoC sound support
+-  DEPENDS:=+kmod-regmap +kmod-ac97
++  DEPENDS:=+kmod-regmap
+   KCONFIG:= \
+ 	CONFIG_SND_SOC \
+ 	CONFIG_SND_SOC_DMAENGINE_PCM=y \
+@@ -281,7 +281,7 @@ endef
+ 
+ $(eval $(call KernelPackage,pcspkr))
+ 
+-define KernelPackage/sound-soc-rt5350
++define KernelPackage/sound-soc-rt5350-pcm
+   TITLE:=RT5350 SoC support
+   KCONFIG:=\
+ 	CONFIG_SND_SOC_RT5350_PCM
+@@ -292,22 +292,21 @@ define KernelPackage/sound-soc-rt5350
+   $(call AddDepends/sound)
+ endef
+ 
+-define KernelPackage/sound-soc-rt5350/description
++define KernelPackage/sound-soc-rt5350-pcm/description
+  Support for RT5350 Platform sound (pcm)
+ endef
+ 
+-$(eval $(call KernelPackage,sound-soc-rt5350))
+-
++$(eval $(call KernelPackage,sound-soc-rt5350-pcm))
+ 
+ define KernelPackage/sound-soc-rt5350-le89156
+   TITLE:=RT5350 SoC support for Zarlink LE89156
+   KCONFIG:=\
+-	SND_SOC_RT5350_LE89156
++	CONFIG_SND_SOC_RT5350_LE89156
+   FILES:=\
+ 	$(LINUX_DIR)/sound/soc/codecs/snd-soc-le89156.ko \
+ 	$(LINUX_DIR)/sound/soc/ralink/snd-soc-rt5350-le89156.ko
+   AUTOLOAD:=$(call AutoLoad,57,snd-soc-le89156 snd-soc-rt5350-le89156)
+-  DEPENDS:=@TARGET_ramips +kmod-sound-soc-rt5350
++  DEPENDS:=@TARGET_ramips +kmod-sound-soc-rt5350-pcm
+   $(call AddDepends/sound)
+ endef
+ 
+diff --git a/target/linux/ramips/patches-3.10/0320-rt5350-zarlink.patch b/target/linux/ramips/patches-3.10/0320-rt5350-zarlink.patch
+index ef6b33e..a4fc7b4 100644
+--- a/target/linux/ramips/patches-3.10/0320-rt5350-zarlink.patch
++++ b/target/linux/ramips/patches-3.10/0320-rt5350-zarlink.patch
+@@ -1225,17 +1225,17 @@
+  	  Say Y if you want to add support for ASoC audio on the Qi LB60 board
+  	  a.k.a Qi Ben NanoNote.
+ +
+-+config SND_RT5350_SOC_PCM
+-+	depends on SOC_RT5350 && SND_SOC
+++config SND_SOC_RT5350_PCM
+++	depends on SOC_RT305X && SND_SOC
+ +	select SND_SOC_GENERIC_DMAENGINE_PCM
+ +	tristate "SoC Audio (PCM protocol) for Ralink RT5350 SoC"
+ +	help
+ +	  Say Y if you want to use I2S protocol and PCM codec on Ralink RT5350
+ +	  based boards.
+ +
+-+config SND_RT5350_SOC_LE89156
+++config SND_SOC_RT5350_LE89156
+ +	tristate "SoC Audio support for Ralink with Zarlink SLIC"
+-+	select SND_RT5350_SOC_PCM
+++	select SND_SOC_RT5350_PCM
+ +	select SND_SOC_LE89156
+ +	help
+ +	  Say Y if you want to add support for ASoC audio on the Ralink with PCM
+@@ -1252,12 +1252,12 @@
+ +#
+ +snd-soc-rt5350-pcm-objs := rt5350-pcm.o
+ +
+-+obj-$(CONFIG_SND_RT5350_SOC_PCM) += snd-soc-rt5350-pcm.o
+++obj-$(CONFIG_SND_SOC_RT5350_PCM) += snd-soc-rt5350-pcm.o
+ +
+ +# RT5350 Machine Support
+ +snd-soc-rt5350-le89156-objs := rt5350-le89156.o
+ +
+-+obj-$(CONFIG_SND_RT5350_SOC_LE89156) += snd-soc-rt5350-le89156.o
+++obj-$(CONFIG_SND_SOC_RT5350_LE89156) += snd-soc-rt5350-le89156.o
+ +
+ --- /dev/null
+ +++ b/sound/soc/ralink/rt5350-le89156.c
+@@ -1559,7 +1559,7 @@
+ +	}
+ +
+ +	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
+-+	case SND_SOC_DAIFMT_PCM:
+++	case SND_SOC_DAIFMT_I2S:
+ +	case SND_SOC_DAIFMT_MSB:
+ +		cfg &= ~PCM_REG_CFG0_BYTE_SWAP;
+ +		break;
+@@ -1866,3 +1866,31 @@
+  snd-soc-lm4857-objs := lm4857.o
+  snd-soc-lm49453-objs := lm49453.o
+  snd-soc-max9768-objs := max9768.o
++@@ -159,6 +160,7 @@ obj-$(CONFIG_SND_SOC_DMIC)	+= snd-soc-dm
++ obj-$(CONFIG_SND_SOC_ISABELLE)	+= snd-soc-isabelle.o
++ obj-$(CONFIG_SND_SOC_JZ4740_CODEC)	+= snd-soc-jz4740-codec.o
++ obj-$(CONFIG_SND_SOC_L3)	+= snd-soc-l3.o
+++obj-$(CONFIG_SND_SOC_LE89156)	+= snd-soc-le89156.o
++ obj-$(CONFIG_SND_SOC_LM4857)	+= snd-soc-lm4857.o
++ obj-$(CONFIG_SND_SOC_LM49453)   += snd-soc-lm49453.o
++ obj-$(CONFIG_SND_SOC_MAX9768)	+= snd-soc-max9768.o
++--- a/sound/soc/codecs/Kconfig
+++++ b/sound/soc/codecs/Kconfig
++@@ -43,6 +43,7 @@ config SND_SOC_ALL_CODECS
++ 	select SND_SOC_DFBMCS320
++ 	select SND_SOC_ISABELLE if I2C
++ 	select SND_SOC_JZ4740_CODEC
+++	select SND_SOC_LE89156 if SPI
++ 	select SND_SOC_LM4857 if I2C
++ 	select SND_SOC_LM49453 if I2C
++ 	select SND_SOC_MAX98088 if I2C
++@@ -272,6 +273,9 @@ config SND_SOC_DMIC
++ config SND_SOC_ISABELLE
++         tristate
++ 
+++config SND_SOC_LE89156
+++	tristate
+++
++ config SND_SOC_LM49453
++ 	tristate
++ 
+diff --git a/target/linux/ramips/rt305x/profiles/asiarf.mk b/target/linux/ramips/rt305x/profiles/asiarf.mk
+index 3350e09..c15c91c 100644
+--- a/target/linux/ramips/rt305x/profiles/asiarf.mk
++++ b/target/linux/ramips/rt305x/profiles/asiarf.mk
+@@ -7,7 +7,7 @@
+ 
+ define Profile/AWM002EVB
+ 	NAME:=AsiaRF AWM002-EVB
+-	PACKAGES:=kmod-usb-core kmod-usb-ohci kmod-usb2 kmod-ledtrig-usbdev \
++	PACKAGES+=kmod-usb-core kmod-usb-ohci kmod-usb2 kmod-ledtrig-usbdev \
+ 	kmod-i2c-core kmod-i2c-gpio
+ endef
+ 
+@@ -19,7 +19,7 @@ $(eval $(call Profile,AWM002EVB))
+ 
+ define Profile/ZARLINK
+ 	NAME:=AsiaRF Zarlink
+-	PACKAGES:=kmod-usb-core kmod-usb-ohci kmod-usb2 kmod-ledtrig-usbdev \
++	PACKAGES+=kmod-usb-core kmod-usb-ohci kmod-usb2 kmod-ledtrig-usbdev \
+ 	kmod-i2c-core kmod-i2c-gpio kmod-sound-soc-rt5350-le89156
+ endef
