@@ -1,0 +1,40 @@
+Bottom: b9299e605f9cf29957f0248571c02ef880afc0e7
+Top:    32b1ced78f7bb1e9a0fc001c61977cf27d839d0d
+Author: Jon Smirl <jonsmirl@gmail.com>
+Date:   2013-12-31 23:49:21 -0500
+
+Refresh of zarlink
+
+---
+
+diff --git a/package/kernel/linux/modules/sound.mk b/package/kernel/linux/modules/sound.mk
+index a248d78..0272133 100644
+--- a/package/kernel/linux/modules/sound.mk
++++ b/package/kernel/linux/modules/sound.mk
+@@ -286,7 +286,7 @@ define KernelPackage/sound-soc-rt5350
+   KCONFIG:=\
+ 	CONFIG_SND_SOC_RT5350_PCM
+   FILES:= \
+-	$(LINUX_DIR)/sound/soc/fsl/snd-soc-rt5350-pcm.ko
++	$(LINUX_DIR)/sound/soc/ralink/snd-soc-rt5350-pcm.ko
+   AUTOLOAD:=$(call AutoLoad,56,snd-soc-rt5350-pcm)
+   DEPENDS:=@TARGET_rampips +kmod-sound-soc-core
+   $(call AddDepends/sound)
+@@ -301,7 +301,7 @@ $(eval $(call KernelPackage,sound-soc-rt5350))
+ 
+ define KernelPackage/sound-soc-rt5350-le89156
+   TITLE:=RT5350 SoC support for Zarlink LE89156
+-  KCONFIG:=SND_RT5350_SOC_LE89156
++  KCONFIG:=SND_SOC_RT5350_LE89156
+   FILES:=\
+ 	$(LINUX_DIR)/sound/soc/codecs/snd-soc-le89156.ko \
+ 	$(LINUX_DIR)/sound/soc/codecs/snd-soc-rt5350-le89156.ko
+@@ -311,7 +311,7 @@ define KernelPackage/sound-soc-rt5350-le89156
+ endef
+ 
+ define KernelPackage/sound-soc-rt5350-le89156/description
+- Support for RT5350 Platform sound Zarlink LE89156 codec
++ Support for RT5350 Platform sound Zarlink LE89156 PCM codec
+ endef
+ 
+ $(eval $(call KernelPackage,sound-soc-rt5350-le89156))
