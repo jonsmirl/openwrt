@@ -212,6 +212,8 @@
 
 			interrupt-parent = <&intc>;
 			interrupts = <4>;
+
+			status = "disabled";
 		};
 
 		gdma@2800 {
@@ -220,6 +222,8 @@
 
 			interrupt-parent = <&intc>;
 			interrupts = <7>;
+
+			status = "disabled";
 		};
 	};
 
