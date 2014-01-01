@@ -1,5 +1,5 @@
 Bottom: bc0bd94ba41e16394fd53c4d11863fa354b9afa3
-Top:    97cf4936a08b14598059c966c3173377b21dab87
+Top:    90262b25e58a9c80e1b89ff7ef39e7531f40b961
 Author: Jon Smirl <jonsmirl@gmail.com>
 Date:   2013-12-31 17:21:45 -0500
 
@@ -24,10 +24,12 @@ index 70a454c..0392deb 100644
 +patches*
 diff --git a/target/linux/ramips/dts/ZARLINK.dts b/target/linux/ramips/dts/ZARLINK.dts
 new file mode 100644
-index 0000000..d38ed07
+index 0000000..0e56303
 --- /dev/null
 +++ b/target/linux/ramips/dts/ZARLINK.dts
-@@ -0,0 +1,88 @@
+@@ -0,0 +1,97 @@
++/dts-v1/;
++
 +/include/ "rt5350.dtsi"
 +
 +/ {
@@ -43,7 +45,7 @@ index 0000000..d38ed07
 +
 +				#address-cells = <1>;
 +				#size-cells = <1>;
-+				reg = <0 0>;
++				reg = <0>;
 +				spi-max-frequency = <10000000>;
 +
 +				partition@0 {
@@ -72,9 +74,16 @@ index 0000000..d38ed07
 +
 +			codec: le89156@1 {
 +				compatible = "zarlink,le89156";
-+				reg = <0 0>;
++				reg = <1>;
 +				spi-max-frequency = <10000000>;
 +			};
++		};
++		pcm: pcm@2000 {
++			status = "okay";
++		};
++
++		gdma@2800 {
++			status = "okay";
 +		};
 +	};
 +
@@ -117,10 +126,10 @@ index 0000000..d38ed07
 +	};
 +};
 diff --git a/target/linux/ramips/dts/rt5350.dtsi b/target/linux/ramips/dts/rt5350.dtsi
-index cb9077f..01de1d7 100644
+index cb9077f..a68f199 100644
 --- a/target/linux/ramips/dts/rt5350.dtsi
 +++ b/target/linux/ramips/dts/rt5350.dtsi
-@@ -205,6 +205,22 @@
+@@ -205,6 +205,26 @@
  			interrupt-parent = <&cpuintc>;
  			interrupts = <7>;
  		};
@@ -131,6 +140,8 @@ index cb9077f..01de1d7 100644
 +
 +			interrupt-parent = <&intc>;
 +			interrupts = <4>;
++
++			status = "disabled";
 +		};
 +
 +		gdma@2800 {
@@ -139,6 +150,8 @@ index cb9077f..01de1d7 100644
 +
 +			interrupt-parent = <&intc>;
 +			interrupts = <7>;
++
++			status = "disabled";
 +		};
  	};
  
