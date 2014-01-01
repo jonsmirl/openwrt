@@ -1856,3 +1856,13 @@
 +MODULE_DESCRIPTION("Ralink RT5350 SoC PCM driver");
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:rt5350-pcm");
+--- a/sound/soc/codecs/Makefile
++++ b/sound/soc/codecs/Makefile
+@@ -32,6 +32,7 @@ snd-soc-dmic-objs := dmic.o
+ snd-soc-isabelle-objs := isabelle.o
+ snd-soc-jz4740-codec-objs := jz4740.o
+ snd-soc-l3-objs := l3.o
++snd-soc-le89156-objs := le89156.o
+ snd-soc-lm4857-objs := lm4857.o
+ snd-soc-lm49453-objs := lm49453.o
+ snd-soc-max9768-objs := max9768.o
