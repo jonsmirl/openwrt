@@ -1,0 +1,22 @@
+Bottom: 33ae8975b9587e757171174881b7f08942aacd6b
+Top:    6a73ca670333a34fb112cdcd207bfd88f13e63e3
+Author: Jon Smirl <jonsmirl@gmail.com>
+Date:   2014-01-01 00:01:49 -0500
+
+Refresh of zarlink
+
+---
+
+diff --git a/target/linux/ramips/rt305x/profiles/asiarf.mk b/target/linux/ramips/rt305x/profiles/asiarf.mk
+index f625369..3350e09 100644
+--- a/target/linux/ramips/rt305x/profiles/asiarf.mk
++++ b/target/linux/ramips/rt305x/profiles/asiarf.mk
+@@ -20,7 +20,7 @@ $(eval $(call Profile,AWM002EVB))
+ define Profile/ZARLINK
+ 	NAME:=AsiaRF Zarlink
+ 	PACKAGES:=kmod-usb-core kmod-usb-ohci kmod-usb2 kmod-ledtrig-usbdev \
+-	kmod-i2c-core kmod-i2c-gpio kmod-snd-soc-rt5350-le89156
++	kmod-i2c-core kmod-i2c-gpio kmod-sound-soc-rt5350-le89156
+ endef
+ 
+ define Profile/ZARLINK/Description
