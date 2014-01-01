@@ -301,7 +301,8 @@ $(eval $(call KernelPackage,sound-soc-rt5350))
 
 define KernelPackage/sound-soc-rt5350-le89156
   TITLE:=RT5350 SoC support for Zarlink LE89156
-  KCONFIG:=SND_SOC_RT5350_LE89156
+  KCONFIG:=\
+	SND_SOC_RT5350_LE89156
   FILES:=\
 	$(LINUX_DIR)/sound/soc/codecs/snd-soc-le89156.ko \
 	$(LINUX_DIR)/sound/soc/ralink/snd-soc-rt5350-le89156.ko
