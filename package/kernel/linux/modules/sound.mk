@@ -288,7 +288,7 @@ define KernelPackage/sound-soc-rt5350
   FILES:= \
 	$(LINUX_DIR)/sound/soc/fsl/snd-soc-rt5350-pcm.ko
   AUTOLOAD:=$(call AutoLoad,56,snd-soc-rt5350-pcm)
-  DEPENDS:=@TARGET_rt5350 +kmod-sound-soc-core
+  DEPENDS:=@TARGET_rampips +kmod-sound-soc-core
   $(call AddDepends/sound)
 endef
 
@@ -306,7 +306,7 @@ define KernelPackage/sound-soc-rt5350-le89156
 	$(LINUX_DIR)/sound/soc/codecs/snd-soc-le89156.ko \
 	$(LINUX_DIR)/sound/soc/codecs/snd-soc-rt5350-le89156.ko
   AUTOLOAD:=$(call AutoLoad,57,snd-soc-rt5350-le89156)
-  DEPENDS:=@TARGET_rt5350 +kmod-snd-soc-rt5350
+  DEPENDS:=@TARGET_ramips +kmod-snd-soc-rt5350
   $(call AddDepends/sound)
 endef
 
