@@ -1,5 +1,5 @@
 Bottom: bc0bd94ba41e16394fd53c4d11863fa354b9afa3
-Top:    d01783e69f8ae9c8a1e0dd7e92f6fbb422ff9ca4
+Top:    97cf4936a08b14598059c966c3173377b21dab87
 Author: Jon Smirl <jonsmirl@gmail.com>
 Date:   2013-12-31 17:21:45 -0500
 
@@ -117,7 +117,7 @@ index 0000000..d38ed07
 +	};
 +};
 diff --git a/target/linux/ramips/dts/rt5350.dtsi b/target/linux/ramips/dts/rt5350.dtsi
-index cb9077f..5487669 100644
+index cb9077f..01de1d7 100644
 --- a/target/linux/ramips/dts/rt5350.dtsi
 +++ b/target/linux/ramips/dts/rt5350.dtsi
 @@ -205,6 +205,22 @@
@@ -131,7 +131,7 @@ index cb9077f..5487669 100644
 +
 +			interrupt-parent = <&intc>;
 +			interrupts = <4>;
-+		}
++		};
 +
 +		gdma@2800 {
 +			compatible = "ralink,rt5350-gdma", "ralink,rt2880-gdma";
@@ -139,7 +139,7 @@ index cb9077f..5487669 100644
 +
 +			interrupt-parent = <&intc>;
 +			interrupts = <7>;
-+		}
++		};
  	};
  
  	pinctrl {
