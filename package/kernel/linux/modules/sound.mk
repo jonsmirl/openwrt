@@ -304,7 +304,7 @@ define KernelPackage/sound-soc-rt5350-le89156
   KCONFIG:=SND_SOC_RT5350_LE89156
   FILES:=\
 	$(LINUX_DIR)/sound/soc/codecs/snd-soc-le89156.ko \
-	$(LINUX_DIR)/sound/soc/codecs/snd-soc-rt5350-le89156.ko
+	$(LINUX_DIR)/sound/soc/ralink/snd-soc-rt5350-le89156.ko
   AUTOLOAD:=$(call AutoLoad,57,snd-soc-rt5350-le89156)
   DEPENDS:=@TARGET_ramips +kmod-sound-soc-rt5350
   $(call AddDepends/sound)
