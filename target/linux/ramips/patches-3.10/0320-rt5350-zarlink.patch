@@ -1225,17 +1225,17 @@
  	  Say Y if you want to add support for ASoC audio on the Qi LB60 board
  	  a.k.a Qi Ben NanoNote.
 +
-+config SND_RT5350_SOC_PCM
-+	depends on SOC_RT5350 && SND_SOC
++config SND_SOC_RT5350_PCM
++	depends on SOC_RT305X && SND_SOC
 +	select SND_SOC_GENERIC_DMAENGINE_PCM
 +	tristate "SoC Audio (PCM protocol) for Ralink RT5350 SoC"
 +	help
 +	  Say Y if you want to use I2S protocol and PCM codec on Ralink RT5350
 +	  based boards.
 +
-+config SND_RT5350_SOC_LE89156
++config SND_SOC_RT5350_LE89156
 +	tristate "SoC Audio support for Ralink with Zarlink SLIC"
-+	select SND_RT5350_SOC_PCM
++	select SND_SOC_RT5350_PCM
 +	select SND_SOC_LE89156
 +	help
 +	  Say Y if you want to add support for ASoC audio on the Ralink with PCM
@@ -1252,12 +1252,12 @@
 +#
 +snd-soc-rt5350-pcm-objs := rt5350-pcm.o
 +
-+obj-$(CONFIG_SND_RT5350_SOC_PCM) += snd-soc-rt5350-pcm.o
++obj-$(CONFIG_SND_SOC_RT5350_PCM) += snd-soc-rt5350-pcm.o
 +
 +# RT5350 Machine Support
 +snd-soc-rt5350-le89156-objs := rt5350-le89156.o
 +
-+obj-$(CONFIG_SND_RT5350_SOC_LE89156) += snd-soc-rt5350-le89156.o
++obj-$(CONFIG_SND_SOC_RT5350_LE89156) += snd-soc-rt5350-le89156.o
 +
 --- /dev/null
 +++ b/sound/soc/ralink/rt5350-le89156.c
@@ -1559,7 +1559,7 @@
 +	}
 +
 +	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
-+	case SND_SOC_DAIFMT_PCM:
++	case SND_SOC_DAIFMT_I2S:
 +	case SND_SOC_DAIFMT_MSB:
 +		cfg &= ~PCM_REG_CFG0_BYTE_SWAP;
 +		break;
@@ -1866,3 +1866,31 @@
  snd-soc-lm4857-objs := lm4857.o
  snd-soc-lm49453-objs := lm49453.o
  snd-soc-max9768-objs := max9768.o
+@@ -159,6 +160,7 @@ obj-$(CONFIG_SND_SOC_DMIC)	+= snd-soc-dm
+ obj-$(CONFIG_SND_SOC_ISABELLE)	+= snd-soc-isabelle.o
+ obj-$(CONFIG_SND_SOC_JZ4740_CODEC)	+= snd-soc-jz4740-codec.o
+ obj-$(CONFIG_SND_SOC_L3)	+= snd-soc-l3.o
++obj-$(CONFIG_SND_SOC_LE89156)	+= snd-soc-le89156.o
+ obj-$(CONFIG_SND_SOC_LM4857)	+= snd-soc-lm4857.o
+ obj-$(CONFIG_SND_SOC_LM49453)   += snd-soc-lm49453.o
+ obj-$(CONFIG_SND_SOC_MAX9768)	+= snd-soc-max9768.o
+--- a/sound/soc/codecs/Kconfig
++++ b/sound/soc/codecs/Kconfig
+@@ -43,6 +43,7 @@ config SND_SOC_ALL_CODECS
+ 	select SND_SOC_DFBMCS320
+ 	select SND_SOC_ISABELLE if I2C
+ 	select SND_SOC_JZ4740_CODEC
++	select SND_SOC_LE89156 if SPI
+ 	select SND_SOC_LM4857 if I2C
+ 	select SND_SOC_LM49453 if I2C
+ 	select SND_SOC_MAX98088 if I2C
+@@ -272,6 +273,9 @@ config SND_SOC_DMIC
+ config SND_SOC_ISABELLE
+         tristate
+ 
++config SND_SOC_LE89156
++	tristate
++
+ config SND_SOC_LM49453
+ 	tristate
+ 

@@ -163,7 +163,7 @@ $(eval $(call KernelPackage,sound-cs5535audio))
 
 define KernelPackage/sound-soc-core
   TITLE:=SoC sound support
-  DEPENDS:=+kmod-regmap +kmod-ac97
+  DEPENDS:=+kmod-regmap
   KCONFIG:= \
 	CONFIG_SND_SOC \
 	CONFIG_SND_SOC_DMAENGINE_PCM=y \
@@ -281,7 +281,7 @@ endef
 
 $(eval $(call KernelPackage,pcspkr))
 
-define KernelPackage/sound-soc-rt5350
+define KernelPackage/sound-soc-rt5350-pcm
   TITLE:=RT5350 SoC support
   KCONFIG:=\
 	CONFIG_SND_SOC_RT5350_PCM
@@ -292,22 +292,21 @@ define KernelPackage/sound-soc-rt5350
   $(call AddDepends/sound)
 endef
 
-define KernelPackage/sound-soc-rt5350/description
+define KernelPackage/sound-soc-rt5350-pcm/description
  Support for RT5350 Platform sound (pcm)
 endef
 
-$(eval $(call KernelPackage,sound-soc-rt5350))
-
+$(eval $(call KernelPackage,sound-soc-rt5350-pcm))
 
 define KernelPackage/sound-soc-rt5350-le89156
   TITLE:=RT5350 SoC support for Zarlink LE89156
   KCONFIG:=\
-	SND_SOC_RT5350_LE89156
+	CONFIG_SND_SOC_RT5350_LE89156
   FILES:=\
 	$(LINUX_DIR)/sound/soc/codecs/snd-soc-le89156.ko \
 	$(LINUX_DIR)/sound/soc/ralink/snd-soc-rt5350-le89156.ko
   AUTOLOAD:=$(call AutoLoad,57,snd-soc-le89156 snd-soc-rt5350-le89156)
-  DEPENDS:=@TARGET_ramips +kmod-sound-soc-rt5350
+  DEPENDS:=@TARGET_ramips +kmod-sound-soc-rt5350-pcm
   $(call AddDepends/sound)
 endef
 
