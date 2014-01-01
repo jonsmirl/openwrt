@@ -1,5 +1,5 @@
 Bottom: bc0bd94ba41e16394fd53c4d11863fa354b9afa3
-Top:    12be089eab1fc3efb16038d1df1d560b204eaf44
+Top:    cff43a0fdece56b694d4b86329248c3372f380cd
 Author: Jon Smirl <jonsmirl@gmail.com>
 Date:   2013-12-31 17:21:45 -0500
 
@@ -23,7 +23,7 @@ index 70a454c..0392deb 100644
 +Packages.gz
 +patches*
 diff --git a/package/kernel/linux/modules/sound.mk b/package/kernel/linux/modules/sound.mk
-index 777d274..2bc3ed1 100644
+index 777d274..a248d78 100644
 --- a/package/kernel/linux/modules/sound.mk
 +++ b/package/kernel/linux/modules/sound.mk
 @@ -280,3 +280,41 @@ define KernelPackage/pcspkr/description
@@ -38,7 +38,7 @@ index 777d274..2bc3ed1 100644
 +  FILES:= \
 +	$(LINUX_DIR)/sound/soc/fsl/snd-soc-rt5350-pcm.ko
 +  AUTOLOAD:=$(call AutoLoad,56,snd-soc-rt5350-pcm)
-+  DEPENDS:=@TARGET_rt5350 +kmod-sound-soc-core
++  DEPENDS:=@TARGET_rampips +kmod-sound-soc-core
 +  $(call AddDepends/sound)
 +endef
 +
@@ -56,7 +56,7 @@ index 777d274..2bc3ed1 100644
 +	$(LINUX_DIR)/sound/soc/codecs/snd-soc-le89156.ko \
 +	$(LINUX_DIR)/sound/soc/codecs/snd-soc-rt5350-le89156.ko
 +  AUTOLOAD:=$(call AutoLoad,57,snd-soc-rt5350-le89156)
-+  DEPENDS:=@TARGET_rt5350 +kmod-snd-soc-rt5350
++  DEPENDS:=@TARGET_ramips +kmod-snd-soc-rt5350
 +  $(call AddDepends/sound)
 +endef
 +
