@@ -1,5 +1,5 @@
 Bottom: bc0bd94ba41e16394fd53c4d11863fa354b9afa3
-Top:    26ebf583e7f29345e821756cf1a3545854b5468e
+Top:    d8d93974e13ea68f2747ba8976944e98433fde13
 Author: Jon Smirl <jonsmirl@gmail.com>
 Date:   2013-12-31 17:21:45 -0500
 
@@ -23,7 +23,7 @@ index 70a454c..0392deb 100644
 +Packages.gz
 +patches*
 diff --git a/package/kernel/linux/modules/sound.mk b/package/kernel/linux/modules/sound.mk
-index 777d274..f3e5673 100644
+index 777d274..f7e3e7d 100644
 --- a/package/kernel/linux/modules/sound.mk
 +++ b/package/kernel/linux/modules/sound.mk
 @@ -163,7 +163,7 @@ $(eval $(call KernelPackage,sound-cs5535audio))
@@ -35,7 +35,7 @@ index 777d274..f3e5673 100644
    KCONFIG:= \
  	CONFIG_SND_SOC \
  	CONFIG_SND_SOC_DMAENGINE_PCM=y \
-@@ -280,3 +280,41 @@ define KernelPackage/pcspkr/description
+@@ -280,3 +280,45 @@ define KernelPackage/pcspkr/description
  endef
  
  $(eval $(call KernelPackage,pcspkr))
@@ -43,10 +43,14 @@ index 777d274..f3e5673 100644
 +define KernelPackage/sound-soc-rt5350-pcm
 +  TITLE:=RT5350 SoC support
 +  KCONFIG:=\
++	CONFIG_DMA_RALINK \
++	CONFIG_NET_DMA=n \
 +	CONFIG_SND_SOC_RT5350_PCM
 +  FILES:= \
-+	$(LINUX_DIR)/sound/soc/ralink/snd-soc-rt5350-pcm.ko
-+  AUTOLOAD:=$(call AutoLoad,56,snd-soc-rt5350-pcm)
++	$(LINUX_DIR)/sound/soc/ralink/snd-soc-rt5350-pcm.ko \
++	$(LINUX_DIR)/drivers/dma/virt-dma.ko \
++	$(LINUX_DIR)/drivers/dma/ralink-gdma.ko
++  AUTOLOAD:=$(call AutoLoad,56,snd-soc-rt5350-pcm ralink-gdma)
 +  DEPENDS:=@TARGET_ramips +kmod-sound-soc-core
 +  $(call AddDepends/sound)
 +endef
@@ -243,10 +247,10 @@ index 0000000..5de611e
 +	};
 +};
 diff --git a/target/linux/ramips/dts/rt5350.dtsi b/target/linux/ramips/dts/rt5350.dtsi
-index cb9077f..a68f199 100644
+index cb9077f..9ada213 100644
 --- a/target/linux/ramips/dts/rt5350.dtsi
 +++ b/target/linux/ramips/dts/rt5350.dtsi
-@@ -205,6 +205,26 @@
+@@ -205,6 +205,30 @@
  			interrupt-parent = <&cpuintc>;
  			interrupts = <7>;
  		};
@@ -258,16 +262,20 @@ index cb9077f..a68f199 100644
 +			interrupt-parent = <&intc>;
 +			interrupts = <4>;
 +
++			dmas = <&gdma 4>;
++			dma-names = "rx-tx";
 +			status = "disabled";
 +		};
 +
-+		gdma@2800 {
++		gdma: gdma@2800 {
 +			compatible = "ralink,rt5350-gdma", "ralink,rt2880-gdma";
 +			reg = <0x2800 0x100>;
 +
 +			interrupt-parent = <&intc>;
 +			interrupts = <7>;
 +
++			#dma-cells = <1>;
++			dma-channels = <16>;
 +			status = "disabled";
 +		};
  	};
@@ -316,10 +324,10 @@ index 0000000..3544f6b
 + 		dev_err(&pdev->dev, "no IRQ resource found\n");
 diff --git a/target/linux/ramips/patches-3.10/0320-rt5350-zarlink.patch b/target/linux/ramips/patches-3.10/0320-rt5350-zarlink.patch
 new file mode 100644
-index 0000000..652f868
+index 0000000..3c02d74
 --- /dev/null
 +++ b/target/linux/ramips/patches-3.10/0320-rt5350-zarlink.patch
-@@ -0,0 +1,1514 @@
+@@ -0,0 +1,1527 @@
 +--- /dev/null
 ++++ b/sound/soc/codecs/le89156.c
 +@@ -0,0 +1,704 @@
@@ -1134,15 +1142,16 @@ index 0000000..652f868
 ++#endif
 +--- a/sound/soc/ralink/Kconfig
 ++++ b/sound/soc/ralink/Kconfig
-+@@ -13,3 +13,20 @@ config SND_MT7620_SOC_WM8960
++@@ -13,3 +13,21 @@ config SND_MT7620_SOC_WM8960
 + 	help
 + 	  Say Y if you want to add support for ASoC audio on the Qi LB60 board
 + 	  a.k.a Qi Ben NanoNote.
 ++
 ++config SND_SOC_RT5350_PCM
 ++	depends on SOC_RT305X && SND_SOC
-++	select SND_SOC_GENERIC_DMAENGINE_PCM
+++	select DMADEVICES
 ++	select DMA_RALINK
+++	select SND_SOC_GENERIC_DMAENGINE_PCM
 ++	tristate "SoC Audio (PCM protocol) for Ralink RT5350 SoC"
 ++	help
 ++	  Say Y if you want to use I2S protocol and PCM codec on Ralink RT5350
@@ -1825,15 +1834,27 @@ index 0000000..652f868
 + 
 +--- a/drivers/dma/Kconfig
 ++++ b/drivers/dma/Kconfig
-+@@ -314,7 +314,7 @@ config MMP_PDMA
++@@ -314,9 +314,11 @@ config MMP_PDMA
 + 
 + config DMA_RALINK
 + 	tristate "RALINK DMA support"
 +-	depends on RALINK && SOC_MT7620
-++	depends on RALINK && (SOC_MT7620 | SOC_RT305X)
+++	depends on RALINK && (SOC_MT7620 || SOC_RT305X)
 + 	select DMA_ENGINE
 + 	select DMA_VIRTUAL_CHANNELS
+++	help
+++	  Support the GDMA engine for Ralink MIPS platfrom.
 + 
++ config DMA_ENGINE
++ 	bool
++--- a/drivers/dma/ralink-gdma.c
+++++ b/drivers/dma/ralink-gdma.c
++@@ -574,4 +574,4 @@ module_platform_driver(gdma_dma_driver);
++ 
++ MODULE_AUTHOR("Lars-Peter Clausen <lars@metafoo.de>");
++ MODULE_DESCRIPTION("GDMA4740 DMA driver");
++-MODULE_LICENSE("GPLv2");
+++MODULE_LICENSE("GPL");
 diff --git a/target/linux/ramips/rt305x/profiles/asiarf.mk b/target/linux/ramips/rt305x/profiles/asiarf.mk
 index 8b1f757..c15c91c 100644
 --- a/target/linux/ramips/rt305x/profiles/asiarf.mk
