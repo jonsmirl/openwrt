@@ -1,5 +1,5 @@
 Bottom: bc0bd94ba41e16394fd53c4d11863fa354b9afa3
-Top:    3d52e57654b78b8e8668f1674b25be50a15c8359
+Top:    26ebf583e7f29345e821756cf1a3545854b5468e
 Author: Jon Smirl <jonsmirl@gmail.com>
 Date:   2013-12-31 17:21:45 -0500
 
@@ -316,10 +316,10 @@ index 0000000..3544f6b
 + 		dev_err(&pdev->dev, "no IRQ resource found\n");
 diff --git a/target/linux/ramips/patches-3.10/0320-rt5350-zarlink.patch b/target/linux/ramips/patches-3.10/0320-rt5350-zarlink.patch
 new file mode 100644
-index 0000000..cab19e1
+index 0000000..652f868
 --- /dev/null
 +++ b/target/linux/ramips/patches-3.10/0320-rt5350-zarlink.patch
-@@ -0,0 +1,1502 @@
+@@ -0,0 +1,1514 @@
 +--- /dev/null
 ++++ b/sound/soc/codecs/le89156.c
 +@@ -0,0 +1,704 @@
@@ -1134,7 +1134,7 @@ index 0000000..cab19e1
 ++#endif
 +--- a/sound/soc/ralink/Kconfig
 ++++ b/sound/soc/ralink/Kconfig
-+@@ -13,3 +13,19 @@ config SND_MT7620_SOC_WM8960
++@@ -13,3 +13,20 @@ config SND_MT7620_SOC_WM8960
 + 	help
 + 	  Say Y if you want to add support for ASoC audio on the Qi LB60 board
 + 	  a.k.a Qi Ben NanoNote.
@@ -1142,6 +1142,7 @@ index 0000000..cab19e1
 ++config SND_SOC_RT5350_PCM
 ++	depends on SOC_RT305X && SND_SOC
 ++	select SND_SOC_GENERIC_DMAENGINE_PCM
+++	select DMA_RALINK
 ++	tristate "SoC Audio (PCM protocol) for Ralink RT5350 SoC"
 ++	help
 ++	  Say Y if you want to use I2S protocol and PCM codec on Ralink RT5350
@@ -1821,6 +1822,17 @@ index 0000000..cab19e1
 ++#endif
 + /* in usec */
 + #define RALINK_SPI_WAIT_MAX_LOOP	2000
++ 
++--- a/drivers/dma/Kconfig
+++++ b/drivers/dma/Kconfig
++@@ -314,7 +314,7 @@ config MMP_PDMA
++ 
++ config DMA_RALINK
++ 	tristate "RALINK DMA support"
++-	depends on RALINK && SOC_MT7620
+++	depends on RALINK && (SOC_MT7620 | SOC_RT305X)
++ 	select DMA_ENGINE
++ 	select DMA_VIRTUAL_CHANNELS
 + 
 diff --git a/target/linux/ramips/rt305x/profiles/asiarf.mk b/target/linux/ramips/rt305x/profiles/asiarf.mk
 index 8b1f757..c15c91c 100644
