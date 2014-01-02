@@ -1,5 +1,5 @@
 Bottom: bc0bd94ba41e16394fd53c4d11863fa354b9afa3
-Top:    7c837116c6a52e578b0549539c9668f987cd2306
+Top:    262a41a6d8cc1aacabb7c19a0ed188d257f51980
 Author: Jon Smirl <jonsmirl@gmail.com>
 Date:   2013-12-31 17:21:45 -0500
 
@@ -94,26 +94,26 @@ index d3e0242..24dbfe8 100644
  	br6425 | \
  	broadway | \
 diff --git a/target/linux/ramips/base-files/etc/uci-defaults/02_network b/target/linux/ramips/base-files/etc/uci-defaults/02_network
-index a9914fd..f2b781d 100755
+index a9914fd..f46e421 100755
 --- a/target/linux/ramips/base-files/etc/uci-defaults/02_network
 +++ b/target/linux/ramips/base-files/etc/uci-defaults/02_network
-@@ -42,6 +42,7 @@ ramips_setup_interfaces()
+@@ -41,7 +41,6 @@ ramips_setup_interfaces()
+ 	all0256n | \
  	all5002 | \
  	all5003 | \
- 	awm002-evb | \
-+	zarlink | \
+-	awm002-evb | \
  	broadway | \
  	dcs-930| \
  	wnce2001)
-@@ -71,6 +72,8 @@ ramips_setup_interfaces()
- 		ucidef_add_switch_vlan "switch0" "1" "1 2 3 4 6t"
- 		;;
+@@ -145,7 +144,7 @@ ramips_setup_interfaces()
  
-+	awm002-evb | \
-+	zarlink | \
- 	dir-610-a1 | \
- 	dir-300-b7 | \
- 	dir-320-b1 | \
+ 	*)
+ 		RT3X5X=`cat /proc/cpuinfo | egrep "(RT3.5|RT5350)"`
+-		if [ -n "${RT3X5X}" ]; then
++		if [ "${RT3X5X}" ]; then
+ 			ramips_setup_rt3x5x_vlans
+ 		else
+ 			ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
 diff --git a/target/linux/ramips/base-files/lib/preinit/06_set_iface_mac b/target/linux/ramips/base-files/lib/preinit/06_set_iface_mac
 index 0c4ee13..e4f67ca 100644
 --- a/target/linux/ramips/base-files/lib/preinit/06_set_iface_mac
