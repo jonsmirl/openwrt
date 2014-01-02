@@ -1,5 +1,5 @@
 Bottom: bc0bd94ba41e16394fd53c4d11863fa354b9afa3
-Top:    9bb3990ea89770c9805d5c5eaac8f4726423c9e7
+Top:    93f770df5a9f0c11495cfcc90d56f1a809b13721
 Author: Jon Smirl <jonsmirl@gmail.com>
 Date:   2013-12-31 17:21:45 -0500
 
@@ -9,7 +9,7 @@ Initial framework for Zarlink
 ---
 
 diff --git a/.gitignore b/.gitignore
-index 70a454c..0392deb 100644
+index 70a454c..bceaf90 100644
 --- a/.gitignore
 +++ b/.gitignore
 @@ -21,4 +21,7 @@
@@ -19,9 +19,9 @@ index 70a454c..0392deb 100644
 -TAGS*~
 \ No newline at end of file
 +TAGS*~
-+Packages
-+Packages.gz
-+patches*
++/Packages
++/Packages.gz
++/patches*
 diff --git a/package/kernel/linux/modules/sound.mk b/package/kernel/linux/modules/sound.mk
 index 777d274..f7e3e7d 100644
 --- a/package/kernel/linux/modules/sound.mk
