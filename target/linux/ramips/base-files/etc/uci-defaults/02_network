@@ -72,6 +72,8 @@ ramips_setup_interfaces()
 		ucidef_add_switch_vlan "switch0" "1" "1 2 3 4 6t"
 		;;
 
+	awm002-evb | \
+	zarlink | \
 	dir-610-a1 | \
 	dir-300-b7 | \
 	dir-320-b1 | \
