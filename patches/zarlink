@@ -1,5 +1,5 @@
 Bottom: bc0bd94ba41e16394fd53c4d11863fa354b9afa3
-Top:    d8d93974e13ea68f2747ba8976944e98433fde13
+Top:    7c837116c6a52e578b0549539c9668f987cd2306
 Author: Jon Smirl <jonsmirl@gmail.com>
 Date:   2013-12-31 17:21:45 -0500
 
@@ -94,7 +94,7 @@ index d3e0242..24dbfe8 100644
  	br6425 | \
  	broadway | \
 diff --git a/target/linux/ramips/base-files/etc/uci-defaults/02_network b/target/linux/ramips/base-files/etc/uci-defaults/02_network
-index a9914fd..1eab5ba 100755
+index a9914fd..f2b781d 100755
 --- a/target/linux/ramips/base-files/etc/uci-defaults/02_network
 +++ b/target/linux/ramips/base-files/etc/uci-defaults/02_network
 @@ -42,6 +42,7 @@ ramips_setup_interfaces()
@@ -105,6 +105,15 @@ index a9914fd..1eab5ba 100755
  	broadway | \
  	dcs-930| \
  	wnce2001)
+@@ -71,6 +72,8 @@ ramips_setup_interfaces()
+ 		ucidef_add_switch_vlan "switch0" "1" "1 2 3 4 6t"
+ 		;;
+ 
++	awm002-evb | \
++	zarlink | \
+ 	dir-610-a1 | \
+ 	dir-300-b7 | \
+ 	dir-320-b1 | \
 diff --git a/target/linux/ramips/base-files/lib/preinit/06_set_iface_mac b/target/linux/ramips/base-files/lib/preinit/06_set_iface_mac
 index 0c4ee13..e4f67ca 100644
 --- a/target/linux/ramips/base-files/lib/preinit/06_set_iface_mac
