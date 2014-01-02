@@ -812,15 +812,16 @@
 +#endif
 --- a/sound/soc/ralink/Kconfig
 +++ b/sound/soc/ralink/Kconfig
-@@ -13,3 +13,20 @@ config SND_MT7620_SOC_WM8960
+@@ -13,3 +13,21 @@ config SND_MT7620_SOC_WM8960
  	help
  	  Say Y if you want to add support for ASoC audio on the Qi LB60 board
  	  a.k.a Qi Ben NanoNote.
 +
 +config SND_SOC_RT5350_PCM
 +	depends on SOC_RT305X && SND_SOC
-+	select SND_SOC_GENERIC_DMAENGINE_PCM
++	select DMADEVICES
 +	select DMA_RALINK
++	select SND_SOC_GENERIC_DMAENGINE_PCM
 +	tristate "SoC Audio (PCM protocol) for Ralink RT5350 SoC"
 +	help
 +	  Say Y if you want to use I2S protocol and PCM codec on Ralink RT5350
@@ -1503,12 +1504,24 @@
  
 --- a/drivers/dma/Kconfig
 +++ b/drivers/dma/Kconfig
-@@ -314,7 +314,7 @@ config MMP_PDMA
+@@ -314,9 +314,11 @@ config MMP_PDMA
  
  config DMA_RALINK
  	tristate "RALINK DMA support"
 -	depends on RALINK && SOC_MT7620
-+	depends on RALINK && (SOC_MT7620 | SOC_RT305X)
++	depends on RALINK && (SOC_MT7620 || SOC_RT305X)
  	select DMA_ENGINE
  	select DMA_VIRTUAL_CHANNELS
++	help
++	  Support the GDMA engine for Ralink MIPS platfrom.
  
+ config DMA_ENGINE
+ 	bool
+--- a/drivers/dma/ralink-gdma.c
++++ b/drivers/dma/ralink-gdma.c
+@@ -574,4 +574,4 @@ module_platform_driver(gdma_dma_driver);
+ 
+ MODULE_AUTHOR("Lars-Peter Clausen <lars@metafoo.de>");
+ MODULE_DESCRIPTION("GDMA4740 DMA driver");
+-MODULE_LICENSE("GPLv2");
++MODULE_LICENSE("GPL");

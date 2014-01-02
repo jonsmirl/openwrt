@@ -284,10 +284,14 @@ $(eval $(call KernelPackage,pcspkr))
 define KernelPackage/sound-soc-rt5350-pcm
   TITLE:=RT5350 SoC support
   KCONFIG:=\
+	CONFIG_DMA_RALINK \
+	CONFIG_NET_DMA=n \
 	CONFIG_SND_SOC_RT5350_PCM
   FILES:= \
-	$(LINUX_DIR)/sound/soc/ralink/snd-soc-rt5350-pcm.ko
-  AUTOLOAD:=$(call AutoLoad,56,snd-soc-rt5350-pcm)
+	$(LINUX_DIR)/sound/soc/ralink/snd-soc-rt5350-pcm.ko \
+	$(LINUX_DIR)/drivers/dma/virt-dma.ko \
+	$(LINUX_DIR)/drivers/dma/ralink-gdma.ko
+  AUTOLOAD:=$(call AutoLoad,56,snd-soc-rt5350-pcm ralink-gdma)
   DEPENDS:=@TARGET_ramips +kmod-sound-soc-core
   $(call AddDepends/sound)
 endef
