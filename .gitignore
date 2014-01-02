@@ -22,6 +22,6 @@
 *#
 .emacs.desktop*
 TAGS*~
-Packages
-Packages.gz
-patches*
+/Packages
+/Packages.gz
+/patches*
