@@ -1,0 +1,40 @@
+Bottom: 7c837116c6a52e578b0549539c9668f987cd2306
+Top:    262a41a6d8cc1aacabb7c19a0ed188d257f51980
+Author: Jon Smirl <jonsmirl@gmail.com>
+Date:   2014-01-02 12:32:05 -0500
+
+Refresh of zarlink
+
+---
+
+diff --git a/target/linux/ramips/base-files/etc/uci-defaults/02_network b/target/linux/ramips/base-files/etc/uci-defaults/02_network
+index f2b781d..f46e421 100755
+--- a/target/linux/ramips/base-files/etc/uci-defaults/02_network
++++ b/target/linux/ramips/base-files/etc/uci-defaults/02_network
+@@ -41,8 +41,6 @@ ramips_setup_interfaces()
+ 	all0256n | \
+ 	all5002 | \
+ 	all5003 | \
+-	awm002-evb | \
+-	zarlink | \
+ 	broadway | \
+ 	dcs-930| \
+ 	wnce2001)
+@@ -72,8 +70,6 @@ ramips_setup_interfaces()
+ 		ucidef_add_switch_vlan "switch0" "1" "1 2 3 4 6t"
+ 		;;
+ 
+-	awm002-evb | \
+-	zarlink | \
+ 	dir-610-a1 | \
+ 	dir-300-b7 | \
+ 	dir-320-b1 | \
+@@ -148,7 +144,7 @@ ramips_setup_interfaces()
+ 
+ 	*)
+ 		RT3X5X=`cat /proc/cpuinfo | egrep "(RT3.5|RT5350)"`
+-		if [ -n "${RT3X5X}" ]; then
++		if [ "${RT3X5X}" ]; then
+ 			ramips_setup_rt3x5x_vlans
+ 		else
+ 			ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
