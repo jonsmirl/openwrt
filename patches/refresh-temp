@@ -1,0 +1,43 @@
+Bottom: bcacd901940370636c407a3078c8be524ed22239
+Top:    cbeb135f6af066cdfe16ffe3088c7970fc76a597
+Author: Jon Smirl <jonsmirl@gmail.com>
+Date:   2014-01-02 16:39:04 -0500
+
+Refresh of zarlink
+
+---
+
+diff --git a/target/linux/ramips/patches-3.10/0600-rt5350-zarlink.patch b/target/linux/ramips/patches-3.10/0600-rt5350-zarlink.patch
+index 97b6414..d0578b7 100644
+--- a/target/linux/ramips/patches-3.10/0600-rt5350-zarlink.patch
++++ b/target/linux/ramips/patches-3.10/0600-rt5350-zarlink.patch
+@@ -1742,7 +1742,7 @@
+  	{},
+  };
+  MODULE_DEVICE_TABLE(of, rt2880_spi_match);
+-@@ -566,13 +605,13 @@ static int rt2880_spi_probe(struct platf
++@@ -566,7 +605,6 @@ static int rt2880_spi_probe(struct platf
+  
+  	master->setup = rt2880_spi_setup;
+  	master->transfer_one_message = rt2880_spi_transfer_one_message;
+@@ -1750,13 +1750,14 @@
+  	master->bits_per_word_mask = SPI_BPW_MASK(8);
+  	master->dev.of_node = pdev->dev.of_node;
+  
+- 	dev_set_drvdata(&pdev->dev, master);
+- 
+- 	rs = spi_master_get_devdata(master);
+-+	master->num_chipselect = rs->ops->num_cs;
+- 	rs->base = base;
+- 	rs->clk = clk;
++@@ -578,6 +616,7 @@ static int rt2880_spi_probe(struct platf
+  	rs->master = master;
++ 	rs->sys_freq = clk_get_rate(rs->clk);
++ 	rs->ops = (struct rt2880_spi_ops *) match->data;
+++	master->num_chipselect = rs->ops->num_cs;
++ 	dev_dbg(&pdev->dev, "sys_freq: %u\n", rs->sys_freq);
++ 	spin_lock_irqsave(&rs->lock, flags);
++ 
+ --- a/drivers/dma/Kconfig
+ +++ b/drivers/dma/Kconfig
+ @@ -314,9 +314,11 @@ config MMP_PDMA
