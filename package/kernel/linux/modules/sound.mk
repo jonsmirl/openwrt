@@ -163,13 +163,12 @@ $(eval $(call KernelPackage,sound-cs5535audio))
 
 define KernelPackage/sound-soc-core
   TITLE:=SoC sound support
-  DEPENDS:=+kmod-regmap
+  DEPENDS:=+kmod-regmap +kmod-sound-core
   KCONFIG:= \
 	CONFIG_SND_SOC \
 	CONFIG_SND_SOC_DMAENGINE_PCM=y \
 	CONFIG_SND_SOC_ALL_CODECS=n
   FILES:=$(LINUX_DIR)/sound/soc/snd-soc-core.ko
-  DEPENDS:=+kmod-sound-core
   AUTOLOAD:=$(call AutoLoad,55, snd-soc-core)
   $(call AddDepends/sound)
 endef
