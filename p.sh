@@ -3,6 +3,6 @@
 stg refresh
 git branch -D ravi1
 stg publish ravi1
-stg puglish ravi
+stg publish ravi
 git push github --all --force
 
