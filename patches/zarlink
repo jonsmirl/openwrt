@@ -1,5 +1,5 @@
 Bottom: ba1931e759392863995cfdc12b7a8053bd8f1fe0
-Top:    e26160a4d7aa7ebd8e7e0183cf0a8185df7cef15
+Top:    cf5bf1afd5864703dd6a49a86c3b667b9519f796
 Author: Jon Smirl <jonsmirl@gmail.com>
 Date:   2013-12-31 17:21:45 -0500
 
@@ -37,10 +37,10 @@ index 0000000..fe29ef0
 +git push github --all --force
 +
 diff --git a/package/kernel/linux/modules/sound.mk b/package/kernel/linux/modules/sound.mk
-index 777d274..f7e3e7d 100644
+index 777d274..5d3d62a 100644
 --- a/package/kernel/linux/modules/sound.mk
 +++ b/package/kernel/linux/modules/sound.mk
-@@ -163,7 +163,7 @@ $(eval $(call KernelPackage,sound-cs5535audio))
+@@ -163,12 +163,13 @@ $(eval $(call KernelPackage,sound-cs5535audio))
  
  define KernelPackage/sound-soc-core
    TITLE:=SoC sound support
@@ -49,7 +49,13 @@ index 777d274..f7e3e7d 100644
    KCONFIG:= \
  	CONFIG_SND_SOC \
  	CONFIG_SND_SOC_DMAENGINE_PCM=y \
-@@ -280,3 +280,45 @@ define KernelPackage/pcspkr/description
+ 	CONFIG_SND_SOC_ALL_CODECS=n
+   FILES:=$(LINUX_DIR)/sound/soc/snd-soc-core.ko
++  DEPENDS:=+kmod-sound-core
+   AUTOLOAD:=$(call AutoLoad,55, snd-soc-core)
+   $(call AddDepends/sound)
+ endef
+@@ -280,3 +281,45 @@ define KernelPackage/pcspkr/description
  endef
  
  $(eval $(call KernelPackage,pcspkr))
