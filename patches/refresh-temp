@@ -1,0 +1,66 @@
+Bottom: ede31a24133156cd778b88c9c3c8385a3554590f
+Top:    ae4650f2af2926cad320f2d0950f4527ede897f5
+Author: Jon Smirl <jonsmirl@gmail.com>
+Date:   2014-01-03 00:12:16 -0500
+
+Refresh of zarlink
+
+---
+
+diff --git a/target/linux/ramips/dts/rt5350.dtsi b/target/linux/ramips/dts/rt5350.dtsi
+index 9ada213..ebdfbd1 100644
+--- a/target/linux/ramips/dts/rt5350.dtsi
++++ b/target/linux/ramips/dts/rt5350.dtsi
+@@ -167,7 +167,7 @@
+ 		};
+ 
+ 		spi@b00 {
+-			compatible = "ralink,rt5350-spi", "ralink,rt2880-spi";
++			compatible = "ralink,rt5350-spi";
+ 			reg = <0xb00 0x100>;
+ 
+ 			resets = <&rstctrl 18>;
+diff --git a/target/linux/ramips/patches-3.10/0600-rt5350-zarlink.patch b/target/linux/ramips/patches-3.10/0600-rt5350-zarlink.patch
+index d0578b7..5bad0d1 100644
+--- a/target/linux/ramips/patches-3.10/0600-rt5350-zarlink.patch
++++ b/target/linux/ramips/patches-3.10/0600-rt5350-zarlink.patch
+@@ -1742,19 +1742,36 @@
+  	{},
+  };
+  MODULE_DEVICE_TABLE(of, rt2880_spi_match);
+-@@ -566,7 +605,6 @@ static int rt2880_spi_probe(struct platf
++@@ -534,10 +573,12 @@ static int rt2880_spi_probe(struct platf
++ 	struct resource *r;
++ 	int status = 0;
++ 	struct clk *clk;
+++	struct rt2880_spi_ops *ops;
++ 
++         match = of_match_device(rt2880_spi_match, &pdev->dev);
++ 	if (!match)
++ 		return -EINVAL;
+++	ops = (struct rt2880_spi_ops *)match->data;
++ 
++ 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++ 	base = devm_ioremap_resource(&pdev->dev, r);
++@@ -566,9 +607,9 @@ static int rt2880_spi_probe(struct platf
+  
+  	master->setup = rt2880_spi_setup;
+  	master->transfer_one_message = rt2880_spi_transfer_one_message;
+ -	master->num_chipselect = RALINK_NUM_CHIPSELECTS;
+  	master->bits_per_word_mask = SPI_BPW_MASK(8);
+  	master->dev.of_node = pdev->dev.of_node;
+++	master->num_chipselect = ops->num_cs;
++ 
++ 	dev_set_drvdata(&pdev->dev, master);
+  
+-@@ -578,6 +616,7 @@ static int rt2880_spi_probe(struct platf
++@@ -577,7 +618,7 @@ static int rt2880_spi_probe(struct platf
++ 	rs->clk = clk;
+  	rs->master = master;
+  	rs->sys_freq = clk_get_rate(rs->clk);
+- 	rs->ops = (struct rt2880_spi_ops *) match->data;
+-+	master->num_chipselect = rs->ops->num_cs;
++-	rs->ops = (struct rt2880_spi_ops *) match->data;
+++	rs->ops = ops;
+  	dev_dbg(&pdev->dev, "sys_freq: %u\n", rs->sys_freq);
+  	spin_lock_irqsave(&rs->lock, flags);
