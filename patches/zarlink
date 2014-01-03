@@ -1,5 +1,5 @@
 Bottom: ba1931e759392863995cfdc12b7a8053bd8f1fe0
-Top:    cda5866557caa4ff0b1c3aeb31da46bd11070aeb
+Top:    e26160a4d7aa7ebd8e7e0183cf0a8185df7cef15
 Author: Jon Smirl <jonsmirl@gmail.com>
 Date:   2013-12-31 17:21:45 -0500
 
@@ -24,7 +24,7 @@ index 70a454c..bceaf90 100644
 +/patches*
 diff --git a/p.sh b/p.sh
 new file mode 100755
-index 0000000..048957b
+index 0000000..fe29ef0
 --- /dev/null
 +++ b/p.sh
 @@ -0,0 +1,8 @@
@@ -33,7 +33,7 @@ index 0000000..048957b
 +stg refresh
 +git branch -D ravi1
 +stg publish ravi1
-+stg puglish ravi
++stg publish ravi
 +git push github --all --force
 +
 diff --git a/package/kernel/linux/modules/sound.mk b/package/kernel/linux/modules/sound.mk
