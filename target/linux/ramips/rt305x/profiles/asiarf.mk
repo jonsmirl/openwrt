@@ -20,6 +20,7 @@ $(eval $(call Profile,AWM002EVB))
 define Profile/ZARLINK
 	NAME:=AsiaRF Zarlink
 	PACKAGES+=kmod-usb-core kmod-usb-ohci kmod-usb2 kmod-ledtrig-usbdev \
+	kmod-sound-core \
 	kmod-i2c-core kmod-i2c-gpio kmod-sound-soc-rt5350-le89156
 endef
 
