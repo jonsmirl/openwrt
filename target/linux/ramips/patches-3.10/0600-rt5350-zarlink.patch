@@ -1742,19 +1742,36 @@
  	{},
  };
  MODULE_DEVICE_TABLE(of, rt2880_spi_match);
-@@ -566,7 +605,6 @@ static int rt2880_spi_probe(struct platf
+@@ -534,10 +573,12 @@ static int rt2880_spi_probe(struct platf
+ 	struct resource *r;
+ 	int status = 0;
+ 	struct clk *clk;
++	struct rt2880_spi_ops *ops;
+ 
+         match = of_match_device(rt2880_spi_match, &pdev->dev);
+ 	if (!match)
+ 		return -EINVAL;
++	ops = (struct rt2880_spi_ops *)match->data;
+ 
+ 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	base = devm_ioremap_resource(&pdev->dev, r);
+@@ -566,9 +607,9 @@ static int rt2880_spi_probe(struct platf
  
  	master->setup = rt2880_spi_setup;
  	master->transfer_one_message = rt2880_spi_transfer_one_message;
 -	master->num_chipselect = RALINK_NUM_CHIPSELECTS;
  	master->bits_per_word_mask = SPI_BPW_MASK(8);
  	master->dev.of_node = pdev->dev.of_node;
++	master->num_chipselect = ops->num_cs;
  
-@@ -578,6 +616,7 @@ static int rt2880_spi_probe(struct platf
+ 	dev_set_drvdata(&pdev->dev, master);
+ 
+@@ -577,7 +618,7 @@ static int rt2880_spi_probe(struct platf
+ 	rs->clk = clk;
  	rs->master = master;
  	rs->sys_freq = clk_get_rate(rs->clk);
- 	rs->ops = (struct rt2880_spi_ops *) match->data;
-+	master->num_chipselect = rs->ops->num_cs;
+-	rs->ops = (struct rt2880_spi_ops *) match->data;
++	rs->ops = ops;
  	dev_dbg(&pdev->dev, "sys_freq: %u\n", rs->sys_freq);
  	spin_lock_irqsave(&rs->lock, flags);
  
