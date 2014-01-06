@@ -167,7 +167,7 @@
 		};
 
 		spi@b00 {
-			compatible = "ralink,rt5350-spi", "ralink,rt2880-spi";
+			compatible = "ralink,rt5350-spi";
 			reg = <0xb00 0x100>;
 
 			resets = <&rstctrl 18>;
@@ -204,6 +204,30 @@
 
 			interrupt-parent = <&cpuintc>;
 			interrupts = <7>;
+		};
+
+		pcm@2000 {
+			compatible = "ralink,rt5350-pcm";
+			reg = <0x2000 0x100>;
+
+			interrupt-parent = <&intc>;
+			interrupts = <4>;
+
+			dmas = <&gdma 4>;
+			dma-names = "rx-tx";
+			status = "disabled";
+		};
+
+		gdma: gdma@2800 {
+			compatible = "ralink,rt5350-gdma", "ralink,rt2880-gdma";
+			reg = <0x2800 0x100>;
+
+			interrupt-parent = <&intc>;
+			interrupts = <7>;
+
+			#dma-cells = <1>;
+			dma-channels = <16>;
+			status = "disabled";
 		};
 	};
 
